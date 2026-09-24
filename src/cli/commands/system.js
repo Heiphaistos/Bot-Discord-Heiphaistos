@@ -26,7 +26,6 @@ export function registerSystemCommands(program, rt) {
       let min = 0;
       if (o.level) {
         min = LEVELS[String(o.level).toLowerCase()] ?? Number(o.level);
-        if (!min && min !== 0) throw usageError(`Niveau inconnu : ${o.level}`, `Niveaux : ${Object.keys(LEVELS).join(', ')}`);
         if (Number.isNaN(min)) throw usageError(`Niveau inconnu : ${o.level}`, `Niveaux : ${Object.keys(LEVELS).join(', ')}`);
       }
       const keep = (l) => (l.level ?? 0) >= min && (!o.module || l.module === o.module);

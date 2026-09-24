@@ -392,6 +392,8 @@ export default {
       },
     },
   },
+  createCase: (...args) => createCase(...args),
+  caseEmbed: (...args) => caseEmbed(...args),
   api(router, ctx) {
     router.get('/cases', async (request) => {
       const { user, type, limit = 50, offset = 0 } = request.query;

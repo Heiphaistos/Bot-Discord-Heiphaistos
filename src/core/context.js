@@ -60,6 +60,13 @@ export function createContext({ client, db, modules }) {
     return channel.send(data).catch((err) => { logger.warn({ module: moduleName, err }, 'Impossible d\'envoyer le log'); return null; });
   };
 
+  /** Create a moderation case (mod_cases) from any module. Returns null if the moderation module is absent. */
+  ctx.modCase = async (guild, data) => {
+    const mod = modules.get('moderation');
+    if (!mod?.createCase) return null;
+    return mod.createCase(ctx, guild, data);
+  };
+
   ctx.botCan = (guild, perms) => {
     const me = guild?.members?.me;
     if (!me) return false;

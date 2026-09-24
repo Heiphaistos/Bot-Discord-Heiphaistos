@@ -3,7 +3,7 @@ import { ActionError } from '../../core/actions.js';
 import { embed, infoEmbed, formatDuration, codeBlock, truncate, chunk } from '../../core/utils.js';
 import { config } from '../../config.js';
 
-const CATEGORIES = { general: '🧰 Général', moderation: '🛡️ Modération', community: '🎉 Communauté', utility: '🔧 Utilitaires', fun: '🎲 Fun', music: '🎵 Musique', economy: '💰 Économie', integrations: '🔗 Intégrations', system: '⚙️ Système' };
+const CATEGORIES = { general: '🧰 Général', moderation: '🛡️ Modération', community: '🎉 Communauté', utility: '🔧 Utilitaires', fun: '🎲 Fun', music: '🎵 Musique', economy: '💰 Économie', integrations: '🔗 Intégrations', system: '⚙️ Système', security: '🔒 Sécurité', gaming: '🎮 Gaming' };
 
 export default {
   name: 'admin',

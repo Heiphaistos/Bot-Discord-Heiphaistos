@@ -25,6 +25,10 @@ export async function startWebServer(ctx, { listen = true } = {}) {
   await app.register(fastifyRateLimit, { max: 600, timeWindow: '1 minute' });
   await app.register(fastifyStatic, { root: PUBLIC_DIR, prefix: '/', index: ['index.html'], wildcard: false });
 
+  // Formulaires HTML (captcha, appels de ban, etc.)
+  app.addContentTypeParser('application/x-www-form-urlencoded', { parseAs: 'string' }, (req, body, done) => {
+    try { done(null, Object.fromEntries(new URLSearchParams(body))); } catch (err) { done(err, undefined); }
+  });
   app.decorateRequest('auth', null);
   app.decorateRequest('guild', null);
 

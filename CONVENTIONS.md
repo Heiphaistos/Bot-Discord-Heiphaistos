@@ -111,6 +111,8 @@ Une action peut en appeler une autre : `await ctx.actions.run({ module, action, 
 - `ctx.bus.publish('event', payload)` / `ctx.bus.on('event', fn)` : évènements internes. Évènements standards : `modAction, memberJoin, memberLeave, ticketOpen, ticketClose, giveawayEnd, levelUp, suggestionNew, raidDetected, automodTrigger, backupCreated, archiveCreated, verificationPassed, pollEnd, reminder, action, custom`. Le module `integrations` relaie ces évènements vers ForgeHook/webhooks sortants ; publiez donc les évènements métier importants.
 - `ctx.utils` : `parseDuration, formatDuration, embed, successEmbed, errorEmbed, infoEmbed, renderTemplate, templateVars, chunk, truncate, codeBlock, isOwner, randomInt, pick, shuffle, sleep, discordTimestamp, escapeMarkdown, progressBar, safeJsonParse, extractId, COLORS`.
 - `ctx.botCan(guild, ['ManageRoles'])`, `ctx.getPrefix(guildId)`, `ctx.audit.list(guildId, opts)`.
+- `await ctx.modCase(guild, { type, userId, userTag, moderator: actor, reason, durationMs, extra, log })` : crée un cas dans `mod_cases` (module moderation) depuis n'importe quel module.
+- Les routes publiques acceptent `application/json` et `application/x-www-form-urlencoded` (formulaires HTML).
 - Templates : `renderTemplate('Bienvenue {user.mention} sur {server.name}', templateVars({ user, member, guild, channel, extra }))`.
 
 ## Base de données

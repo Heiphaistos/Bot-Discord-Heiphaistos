@@ -3,7 +3,6 @@
  * modération, messages, rôles, cas, et groupes génériques par module (backup, ticket, music, docker…).
  */
 import { c, print, table, info } from '../lib/output.js';
-import { usageError } from '../lib/errors.js';
 import { optionTokensToAssignments, paramsSummary } from '../lib/params.js';
 import { readParamsFile } from './modules.js';
 
