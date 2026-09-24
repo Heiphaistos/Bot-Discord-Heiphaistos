@@ -384,7 +384,7 @@ export default {
       },
     },
     serverinfo: {
-      description: 'Informations sur le serveur', permissions: [], audit: false,
+      description: 'Informations sur le serveur', permissions: [], audit: false, slash: { group: 'util', name: 'serverinfo' },
       async run(ctx, { guild }) {
         const g = await guild.fetch().catch(() => guild);
         const owner = await guild.fetchOwner().catch(() => null);
@@ -811,7 +811,7 @@ export default {
 
     // ================= AFK / snipe =================
     afk: {
-      description: 'Se déclarer absent (AFK)', permissions: [], audit: false,
+      description: 'Se déclarer absent (AFK)', permissions: [], audit: false, slash: { group: 'util', name: 'afk' },
       params: { raison: { type: 'string', description: 'Raison de votre absence', maxLength: 200 } },
       async run(ctx, { guild, actor, params }) {
         const s = ctx.settings.get(guild.id, MOD);
@@ -843,7 +843,7 @@ export default {
       },
     },
     snipe: {
-      description: 'Voir le dernier message supprimé du salon', permissions: [], audit: false,
+      description: 'Voir le dernier message supprimé du salon', permissions: [], audit: false, slash: { group: 'util', name: 'snipe' },
       params: { position: { type: 'integer', description: 'Position (1 = plus récent, max 10)', min: 1, max: 10, default: 1 }, channel: { type: 'channel', description: 'Salon (défaut : courant)', channelTypes: TEXT_CHANNELS } },
       async run(ctx, { guild, actor, params, channel }) {
         return snipeRun(ctx, guild, actor, params, channel, 'deleted');
