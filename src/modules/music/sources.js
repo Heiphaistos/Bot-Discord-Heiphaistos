@@ -271,7 +271,7 @@ export function parseTimestamp(input) {
     if (parts.slice(1).some((p) => p >= 60)) return null;
     return parts.reduce((acc, p) => acc * 60 + p, 0) * 1000;
   }
-  const re = /(\d+(?:\.\d+)?)\s*(h|m|min|s|sec)\b/g; let m; let total = 0; let matched = false;
+  const re = /(\d+(?:\.\d+)?)\s*(h|min|m|sec|s)(?![a-z])/g; let m; let total = 0; let matched = false;
   while ((m = re.exec(s))) { matched = true; total += parseFloat(m[1]) * (m[2] === 'h' ? 3600000 : m[2].startsWith('m') ? 60000 : 1000); }
   return matched ? Math.round(total) : null;
 }

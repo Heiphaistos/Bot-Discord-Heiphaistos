@@ -19,6 +19,7 @@ export function createClient() {
       GatewayIntentBits.AutoModerationConfiguration,
       GatewayIntentBits.AutoModerationExecution,
       GatewayIntentBits.GuildScheduledEvents,
+      ...(config.discord.presenceIntent ? [GatewayIntentBits.GuildPresences] : []),
     ],
     partials: [Partials.Message, Partials.Channel, Partials.Reaction, Partials.GuildMember, Partials.User],
     allowedMentions: { parse: ['users', 'roles'], repliedUser: false },

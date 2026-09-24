@@ -27,6 +27,7 @@ export const config = {
     clientSecret: process.env.DISCORD_CLIENT_SECRET || '',
     devGuildId: process.env.DEV_GUILD_ID || '',
     autoDeployCommands: bool(process.env.AUTO_DEPLOY_COMMANDS, true),
+    presenceIntent: bool(process.env.PRESENCE_INTENT, false),
     status: process.env.BOT_STATUS || 'online',
     activity: process.env.BOT_ACTIVITY || '/help | HeiphaisBot',
     activityType: process.env.BOT_ACTIVITY_TYPE || 'Playing',

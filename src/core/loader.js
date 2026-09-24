@@ -83,7 +83,9 @@ function findGuild(args) {
   for (const a of args) {
     if (!a || typeof a !== 'object') continue;
     if (a.guild && a.guild.id) return a.guild;
+    if (a.message?.guild?.id) return a.message.guild; // MessageReaction
     if (a.guildId && a.client?.guilds) return a.client.guilds.cache.get(a.guildId) || null;
+    if (a.message?.guildId && a.client?.guilds) return a.client.guilds.cache.get(a.message.guildId) || null;
     if (a.constructor?.name === 'Guild') return a;
   }
   return null;

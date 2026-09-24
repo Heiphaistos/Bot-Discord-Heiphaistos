@@ -255,7 +255,8 @@ export default {
 // ---------- helpers ----------
 export function parseOptions(raw, maxLen) {
   const opts = String(raw || '').split('|').map((o) => o.trim()).filter(Boolean);
-  const unique = [...new Map(opts.map((o) => [o.toLowerCase(), o])).values()];
+  const seen = new Set();
+  const unique = opts.filter((o) => { const k = o.toLowerCase(); if (seen.has(k)) return false; seen.add(k); return true; });
   if (unique.length < 2) throw new ActionError('Il faut au moins 2 options distinctes séparées par |');
   if (unique.length > 10) throw new ActionError('10 options maximum');
   const tooLong = unique.find((o) => o.length > maxLen);

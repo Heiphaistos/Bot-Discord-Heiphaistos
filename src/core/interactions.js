@@ -30,7 +30,7 @@ export function replyPayload(result, { ephemeral } = {}) {
 
 export async function safeRespond(interaction, payload) {
   try {
-    if (interaction.deferred || interaction.replied) return await interaction.editReply(payload);
+    if (interaction.deferred || interaction.replied) { const { flags, ...rest } = payload; return await interaction.editReply(rest); }
     return await interaction.reply(payload);
   } catch (err) {
     if (interaction.replied || interaction.deferred) return interaction.followUp({ ...payload, flags: MessageFlags.Ephemeral }).catch(() => null);
@@ -120,7 +120,12 @@ export function installInteractionHandler(ctx) {
   async function handleContextMenu(ctx, interaction) {
     for (const mod of modules.values()) {
       const cmd = (mod.contextMenus || []).find((c) => c.data.name === interaction.commandName);
-      if (cmd) return cmd.execute(interaction, ctx);
+      if (cmd) {
+        if (interaction.guildId && !mod.core && !ctx.settings.isEnabled(interaction.guildId, mod.name)) {
+          return safeRespond(interaction, { embeds: [errorEmbed(`Le module **${mod.label || mod.name}** est désactivé.`)], flags: MessageFlags.Ephemeral });
+        }
+        return cmd.execute(interaction, ctx);
+      }
     }
   }
 

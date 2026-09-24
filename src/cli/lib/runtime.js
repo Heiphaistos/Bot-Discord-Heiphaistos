@@ -162,7 +162,7 @@ export function createRuntime(program) {
      * @param {string} [o.action] nom exact de l'action (sinon déduit des tokens)
      * @param {string} [o.defaultAction] action utilisée si les tokens ne désignent pas d'action
      */
-    async runAction({ module: moduleName, action: actionName = null, tokens = [], params = {}, fileParams = {}, guild = null, channel = null, dryRun = false, defaultAction = null }) {
+    async runAction({ module: moduleName, action: actionName = null, tokens = [], params = {}, fileParams = {}, guild = null, channel = null, dryRun = false, defaultAction = null, slashGroup = null }) {
       const cat = await rt.catalog();
       const mod = await rt.findModule(moduleName);
       let resolved = null;
@@ -176,7 +176,12 @@ export function createRuntime(program) {
           });
         }
       } else {
-        resolved = resolveAction(cat.actions, mod.name, tokens);
+        if (slashGroup) {
+          // « heiphais docker ps » → chemin slash « /docker ps » ou action docker_ps.
+          const r = resolveAction(cat.actions, mod.name, [slashGroup, ...tokens]);
+          if (r && r.consumed >= 2) resolved = { action: r.action, consumed: r.consumed - 1 };
+        }
+        resolved ||= resolveAction(cat.actions, mod.name, tokens);
         if (!resolved && defaultAction) {
           const a = cat.actions.find((x) => x.module === mod.name && x.name === defaultAction);
           if (a) resolved = { action: a, consumed: 0 };
