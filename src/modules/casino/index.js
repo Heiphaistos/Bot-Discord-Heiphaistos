@@ -589,7 +589,7 @@ export default {
     // ------------------------------------------------------------ paris
     bet_create: {
       description: 'Créer un pari fictif (options au format « Nom:cote, Nom:cote »)',
-      slash: { group: 'bet', name: 'create' }, permissions: ['ManageGuild'],
+      slash: { group: 'casino', subgroup: 'bet', name: 'create' }, permissions: ['ManageGuild'],
       params: {
         titre: { type: 'string', required: true, description: 'Intitulé de l\'évènement', maxLength: 200 },
         options: { type: 'list', required: true, description: 'Options et cotes : « Équipe A:2.1, Équipe B:1.7 » (cote par défaut équitable)' },
@@ -610,7 +610,7 @@ export default {
     },
     bet_auto: {
       description: 'Générer un match e-sport fictif avec cotes, résolu automatiquement',
-      slash: { group: 'bet', name: 'auto' }, permissions: ['ManageGuild'],
+      slash: { group: 'casino', subgroup: 'bet', name: 'auto' }, permissions: ['ManageGuild'],
       params: {
         jeu: { type: 'choice', description: 'Discipline (aléatoire par défaut)', choices: ESPORT_GAMES.map((g) => ({ name: g.name, value: g.name })) },
         duree: { type: 'duration', description: 'Durée avant le résultat (défaut : paramètre du module)', min: 60000, max: 7 * 86400000 },
@@ -624,7 +624,7 @@ export default {
     },
     bet_list: {
       description: 'Lister les paris ouverts (ou récents)',
-      slash: { group: 'bet', name: 'list' }, permissions: [], audit: false,
+      slash: { group: 'casino', subgroup: 'bet', name: 'list' }, permissions: [], audit: false,
       params: { statut: { type: 'choice', description: 'Filtre', choices: [{ name: 'Ouverts', value: 'open' }, { name: 'Tous (récents)', value: 'all' }], default: 'open' } },
       async run(ctx, { guild, params }) {
         const rows = params.statut === 'all'
@@ -637,7 +637,7 @@ export default {
     },
     bet_view: {
       description: 'Détails d\'un pari',
-      slash: { group: 'bet', name: 'view' }, permissions: [], audit: false,
+      slash: { group: 'casino', subgroup: 'bet', name: 'view' }, permissions: [], audit: false,
       params: { id: { type: 'integer', required: true, description: 'Numéro du pari', min: 1 } },
       async run(ctx, { guild, params }) {
         const bet = requireBet(ctx, guild.id, params.id);
@@ -646,7 +646,7 @@ export default {
     },
     bet_place: {
       description: 'Placer une mise sur une option d\'un pari',
-      slash: { group: 'bet', name: 'place' }, permissions: [], audit: false,
+      slash: { group: 'casino', subgroup: 'bet', name: 'place' }, permissions: [], audit: false,
       params: {
         id: { type: 'integer', required: true, description: 'Numéro du pari', min: 1 },
         option: { type: 'string', required: true, description: 'Numéro ou nom de l\'option', autocomplete: true, maxLength: 100 },
@@ -660,7 +660,7 @@ export default {
     },
     bet_mine: {
       description: 'Voir mes paris récents',
-      slash: { group: 'bet', name: 'mine' }, permissions: [], audit: false, ephemeral: true,
+      slash: { group: 'casino', subgroup: 'bet', name: 'mine' }, permissions: [], audit: false, ephemeral: true,
       params: { membre: { type: 'user', description: 'Membre (défaut : vous)' } },
       async run(ctx, { guild, actor, params }) {
         const userId = params.membre || actor.id;
@@ -673,7 +673,7 @@ export default {
     },
     bet_close: {
       description: 'Fermer les mises d\'un pari',
-      slash: { group: 'bet', name: 'close' }, permissions: ['ManageGuild'],
+      slash: { group: 'casino', subgroup: 'bet', name: 'close' }, permissions: ['ManageGuild'],
       params: { id: { type: 'integer', required: true, description: 'Numéro du pari', min: 1 } },
       async run(ctx, { guild, params }) {
         const bet = requireBet(ctx, guild.id, params.id);
@@ -686,7 +686,7 @@ export default {
     },
     bet_resolve: {
       description: 'Désigner l\'option gagnante et payer les gagnants selon les cotes',
-      slash: { group: 'bet', name: 'resolve' }, permissions: ['ManageGuild'],
+      slash: { group: 'casino', subgroup: 'bet', name: 'resolve' }, permissions: ['ManageGuild'],
       params: {
         id: { type: 'integer', required: true, description: 'Numéro du pari', min: 1 },
         option: { type: 'string', required: true, description: 'Numéro ou nom de l\'option gagnante', autocomplete: true, maxLength: 100 },
@@ -701,7 +701,7 @@ export default {
     },
     bet_cancel: {
       description: 'Annuler un pari et rembourser toutes les mises',
-      slash: { group: 'bet', name: 'cancel' }, permissions: ['ManageGuild'],
+      slash: { group: 'casino', subgroup: 'bet', name: 'cancel' }, permissions: ['ManageGuild'],
       params: { id: { type: 'integer', required: true, description: 'Numéro du pari', min: 1 } },
       async run(ctx, { guild, params }) {
         const bet = requireBet(ctx, guild.id, params.id);

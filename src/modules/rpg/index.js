@@ -703,7 +703,7 @@ export default {
     // ------------------------------------------------------------ combats
     fight_boss: {
       description: 'Affronter un boss au tour par tour (Attaquer / Compétence / Potion / Fuir)',
-      slash: { group: 'fight', name: 'boss' }, permissions: [], audit: false,
+      slash: { group: 'rpg', subgroup: 'fight', name: 'boss' }, permissions: [], audit: false,
       params: { palier: { type: 'integer', description: 'Palier du boss (1 à 5, selon votre niveau)', min: 1, max: 5 } },
       async run(ctx, { guild, actor, params, interaction }) {
         if (findUserFight(guild.id, actor.id)) throw new ActionError('Vous êtes déjà en combat !');
@@ -727,7 +727,7 @@ export default {
     },
     fight_user: {
       description: 'Défier un membre en duel (mise optionnelle)',
-      slash: { group: 'fight', name: 'user' }, permissions: [], audit: false,
+      slash: { group: 'rpg', subgroup: 'fight', name: 'user' }, permissions: [], audit: false,
       params: { adversaire: { type: 'user', required: true, description: 'Membre à défier' }, mise: { type: 'integer', description: 'Mise de chaque joueur (le gagnant remporte tout)', min: 0 } },
       async run(ctx, { guild, actor, params, interaction }) {
         const target = params.adversaire;
@@ -762,7 +762,7 @@ export default {
     },
     fight_accept: {
       description: 'Accepter le défi en duel qui vous a été lancé',
-      slash: { group: 'fight', name: 'accept' }, permissions: [], audit: false,
+      slash: { group: 'rpg', subgroup: 'fight', name: 'accept' }, permissions: [], audit: false,
       async run(ctx, { guild, actor, interaction }) {
         const duel = [...duels.values()].find((d) => d.guildId === guild.id && d.target === actor.id);
         if (!duel) throw new ActionError('Aucun défi en attente pour vous');
@@ -775,7 +775,7 @@ export default {
     },
     fight_action: {
       description: 'Jouer une action dans votre combat en cours (sans boutons)',
-      slash: { group: 'fight', name: 'action' }, permissions: [], audit: false,
+      slash: { group: 'rpg', subgroup: 'fight', name: 'action' }, permissions: [], audit: false,
       params: { action: { type: 'choice', required: true, description: 'Action', choices: [{ name: 'Attaquer', value: 'attack' }, { name: 'Compétence', value: 'skill' }, { name: 'Potion', value: 'potion' }, { name: 'Fuir / abandonner', value: 'flee' }] } },
       async run(ctx, { guild, actor, params, interaction }) {
         const fight = findUserFight(guild.id, actor.id);
@@ -787,7 +787,7 @@ export default {
     },
     fight_status: {
       description: 'Voir votre combat en cours',
-      slash: { group: 'fight', name: 'status' }, permissions: [], audit: false,
+      slash: { group: 'rpg', subgroup: 'fight', name: 'status' }, permissions: [], audit: false,
       async run(ctx, { guild, actor, interaction }) {
         const fight = findUserFight(guild.id, actor.id);
         if (!fight) throw new ActionError('Vous n\'êtes pas en combat');
@@ -847,7 +847,7 @@ export default {
     // ------------------------------------------------------------ familiers
     pet_adopt: {
       description: 'Adopter un familier virtuel',
-      slash: { group: 'pet', name: 'adopt' }, permissions: [],
+      slash: { group: 'rpg', subgroup: 'pet', name: 'adopt' }, permissions: [],
       params: {
         espece: { type: 'choice', required: true, description: 'Espèce', choices: Object.entries(PET_SPECIES).map(([value, sp]) => ({ name: `${sp.stages[1]} ${sp.label}`, value })) },
         nom: { type: 'string', required: true, description: 'Nom du familier', maxLength: 32, minLength: 1 },
@@ -865,7 +865,7 @@ export default {
     },
     pet_status: {
       description: 'État de votre familier (ou de celui d\'un membre)',
-      slash: { group: 'pet', name: 'status' }, permissions: [], audit: false,
+      slash: { group: 'rpg', subgroup: 'pet', name: 'status' }, permissions: [], audit: false,
       params: { membre: { type: 'user', description: 'Membre (défaut : vous)' } },
       async run(ctx, { guild, actor, params }) {
         const userId = params.membre || actor.id;
@@ -876,7 +876,7 @@ export default {
     },
     pet_feed: {
       description: 'Nourrir votre familier',
-      slash: { group: 'pet', name: 'feed' }, permissions: [], audit: false,
+      slash: { group: 'rpg', subgroup: 'pet', name: 'feed' }, permissions: [], audit: false,
       async run(ctx, { guild, actor }) {
         const p = requirePet(ctx, guild.id, actor.id);
         if (p.hunger >= 95) throw new ActionError(`${p.name} n'a plus faim !`);
@@ -894,7 +894,7 @@ export default {
     },
     pet_play: {
       description: 'Jouer avec votre familier',
-      slash: { group: 'pet', name: 'play' }, permissions: [], audit: false,
+      slash: { group: 'rpg', subgroup: 'pet', name: 'play' }, permissions: [], audit: false,
       async run(ctx, { guild, actor }) {
         const p = requirePet(ctx, guild.id, actor.id);
         const now = Date.now();
@@ -910,7 +910,7 @@ export default {
     },
     pet_rename: {
       description: 'Renommer votre familier',
-      slash: { group: 'pet', name: 'rename' }, permissions: [], audit: false,
+      slash: { group: 'rpg', subgroup: 'pet', name: 'rename' }, permissions: [], audit: false,
       params: { nom: { type: 'string', required: true, description: 'Nouveau nom', maxLength: 32, minLength: 1 } },
       async run(ctx, { guild, actor, params }) {
         const p = requirePet(ctx, guild.id, actor.id);
@@ -922,7 +922,7 @@ export default {
     },
     pet_release: {
       description: 'Relâcher votre familier (définitif)',
-      slash: { group: 'pet', name: 'release' }, permissions: [],
+      slash: { group: 'rpg', subgroup: 'pet', name: 'release' }, permissions: [],
       params: { confirmer: { type: 'boolean', required: true, description: 'Confirmer la libération (irréversible)' } },
       async run(ctx, { guild, actor, params }) {
         const p = requirePet(ctx, guild.id, actor.id);

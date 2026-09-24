@@ -754,7 +754,7 @@ export default {
 
     // ================= Convertisseurs =================
     convert_currency: {
-      description: 'Convertir des devises et cryptomonnaies', slash: { group: 'convert', name: 'currency' }, permissions: [], audit: false, guildOnly: false, cooldown: 3,
+      description: 'Convertir des devises et cryptomonnaies', slash: { group: 'util', subgroup: 'convert', name: 'currency' }, permissions: [], audit: false, guildOnly: false, cooldown: 3,
       params: { montant: { type: 'number', required: true, min: 0, description: 'Montant' }, de: { type: 'string', required: true, description: 'Devise source (EUR, USD, BTC…)', autocomplete: currencyAutocomplete }, vers: { type: 'string', required: true, description: 'Devise cible', autocomplete: currencyAutocomplete } },
       async run(ctx, { params }) {
         const r = await convertCurrency(params.montant, params.de, params.vers, (url, opts) => fetchJson(url, {}, opts));
@@ -763,7 +763,7 @@ export default {
       },
     },
     convert_units: {
-      description: "Convertir des unités (longueur, masse, température…)", slash: { group: 'convert', name: 'units' }, permissions: [], audit: false, guildOnly: false,
+      description: "Convertir des unités (longueur, masse, température…)", slash: { group: 'util', subgroup: 'convert', name: 'units' }, permissions: [], audit: false, guildOnly: false,
       params: { valeur: { type: 'number', required: true, description: 'Valeur' }, de: { type: 'string', required: true, description: 'Unité source (km, lb, °C, Go…)', autocomplete: unitAutocomplete }, vers: { type: 'string', required: true, description: 'Unité cible', autocomplete: unitAutocomplete } },
       async run(ctx, { params }) {
         const r = convertUnits(params.valeur, params.de, params.vers);
@@ -772,7 +772,7 @@ export default {
       },
     },
     convert_timezone: {
-      description: "Convertir une heure d'un fuseau à un autre", slash: { group: 'convert', name: 'timezone' }, permissions: [], audit: false, guildOnly: false,
+      description: "Convertir une heure d'un fuseau à un autre", slash: { group: 'util', subgroup: 'convert', name: 'timezone' }, permissions: [], audit: false, guildOnly: false,
       params: {
         heure: { type: 'string', required: true, description: 'Heure/date (14:30, demain 9h, 2026-12-25 18:00, now)', maxLength: 60 },
         vers: { type: 'string', required: true, description: 'Fuseau cible (Tokyo, America/New_York, UTC+2…)', autocomplete: tzAutocomplete },
@@ -796,7 +796,7 @@ export default {
       },
     },
     convert_base: {
-      description: 'Convertir un nombre entre bases (2, 8, 10, 16…)', slash: { group: 'convert', name: 'base' }, permissions: [], audit: false, guildOnly: false,
+      description: 'Convertir un nombre entre bases (2, 8, 10, 16…)', slash: { group: 'util', subgroup: 'convert', name: 'base' }, permissions: [], audit: false, guildOnly: false,
       params: { nombre: { type: 'string', required: true, description: 'Nombre (ex : ff, 0b1010, 255)', maxLength: 300 }, de: { type: 'integer', required: true, min: 2, max: 36, description: 'Base source (2-36)' }, vers: { type: 'integer', required: true, min: 2, max: 36, description: 'Base cible (2-36)' } },
       async run(ctx, { params }) {
         const r = convertBase(params.nombre, params.de, params.vers);

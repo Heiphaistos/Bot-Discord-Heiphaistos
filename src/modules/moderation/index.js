@@ -125,7 +125,7 @@ export default {
       async run(ctx, args) { return ctx.actions.run({ module: 'moderation', action: 'timeout', guildId: args.guild.id, actor: args.actor, params: args.params, skipPermissions: true, audit: false }); },
     },
     untimeout: {
-      description: 'Retirer le timeout d\'un membre', permissions: ['ModerateMembers'], botPermissions: ['ModerateMembers'],
+      description: 'Retirer le timeout d\'un membre', slash: { group: 'mod', name: 'untimeout' }, permissions: ['ModerateMembers'], botPermissions: ['ModerateMembers'],
       params: { user: { type: 'user', required: true, description: 'Membre' }, reason: { type: 'string', description: 'Raison', maxLength: 500 } },
       async run(ctx, { guild, actor, params }) {
         const member = await ctx.resolve.member(guild, params.user);

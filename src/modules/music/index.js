@@ -549,7 +549,7 @@ export default {
 
     // ===== /radio =====
     radio_play: {
-      description: 'Écouter une radio (nom d\'une radio intégrée/personnalisée ou URL de flux)', slash: { group: 'radio', name: 'play' }, permissions: [],
+      description: 'Écouter une radio (nom d\'une radio intégrée/personnalisée ou URL de flux)', slash: { group: 'music', subgroup: 'radio', name: 'play' }, permissions: [],
       params: {
         station: { type: 'string', required: true, description: 'Nom de la radio ou URL du flux', maxLength: 300, autocomplete: (ctx, { guild, value }) => allRadios(ctx, guild.id).filter((r) => !value || normalizeText(`${r.name} ${r.genre} ${r.id}`).includes(normalizeText(value))).slice(0, 25).map((r) => ({ name: `${r.name} — ${r.genre}`, value: r.id })) },
         channel: { type: 'channel', description: 'Salon vocal (API/CLI)', channelTypes: VOICE_TYPES },
@@ -583,7 +583,7 @@ export default {
       },
     },
     radio_list: {
-      description: 'Liste des radios disponibles', slash: { group: 'radio', name: 'list' }, permissions: [], audit: false,
+      description: 'Liste des radios disponibles', slash: { group: 'music', subgroup: 'radio', name: 'list' }, permissions: [], audit: false,
       async run(ctx, { guild }) {
         const list = allRadios(ctx, guild.id);
         const lines = list.map((r) => `\`${r.id}\` **${escapeMarkdown(r.name)}** — ${r.genre}${r.custom ? ' *(perso)*' : ''}`);
@@ -593,7 +593,7 @@ export default {
 
     // ===== /filter =====
     filter_set: {
-      description: 'Activer / désactiver un filtre audio (appliqué en direct)', slash: { group: 'filter', name: 'set' }, permissions: [],
+      description: 'Activer / désactiver un filtre audio (appliqué en direct)', slash: { group: 'music', subgroup: 'filter', name: 'set' }, permissions: [],
       params: {
         filter: { type: 'choice', required: true, choices: FILTER_CHOICES, description: 'Filtre (clear = tout retirer)' },
         value: { type: 'number', min: SPEED_MIN, max: SPEED_MAX, description: 'Vitesse pour « speed » (ex : 1.25)' },
@@ -614,7 +614,7 @@ export default {
       },
     },
     filter_list: {
-      description: 'Liste des filtres audio et filtres actifs', slash: { group: 'filter', name: 'list' }, permissions: [], audit: false,
+      description: 'Liste des filtres audio et filtres actifs', slash: { group: 'music', subgroup: 'filter', name: 'list' }, permissions: [], audit: false,
       async run(ctx, { guild }) {
         const player = getPlayer(guild.id);
         const active = new Set(player?.filters || []);
@@ -626,7 +626,7 @@ export default {
 
     // ===== /record =====
     record_start: {
-      description: 'Démarrer l\'enregistrement du salon vocal (consentement requis)', slash: { group: 'record', name: 'start' }, permissions: ['ManageGuild'],
+      description: 'Démarrer l\'enregistrement du salon vocal (consentement requis)', slash: { group: 'music', subgroup: 'record', name: 'start' }, permissions: ['ManageGuild'],
       params: {
         duree_max: { type: 'duration', description: 'Durée maximale (ex : 30m, 1h ; max 3h)', max: 3 * 3600000 },
         channel: { type: 'channel', description: 'Salon vocal (API/CLI)', channelTypes: VOICE_TYPES },
@@ -659,7 +659,7 @@ export default {
       },
     },
     record_stop: {
-      description: 'Arrêter l\'enregistrement et obtenir le fichier MP3', slash: { group: 'record', name: 'stop' }, permissions: ['ManageGuild'],
+      description: 'Arrêter l\'enregistrement et obtenir le fichier MP3', slash: { group: 'music', subgroup: 'record', name: 'stop' }, permissions: ['ManageGuild'],
       async run(ctx, { guild }) {
         const player = getPlayer(guild.id);
         if (!player?.recorder) throw new ActionError('Aucun enregistrement en cours.');
@@ -670,7 +670,7 @@ export default {
       },
     },
     record_list: {
-      description: 'Lister les enregistrements du serveur', slash: { group: 'record', name: 'list' }, permissions: ['ManageGuild'], audit: false, ephemeral: true,
+      description: 'Lister les enregistrements du serveur', slash: { group: 'music', subgroup: 'record', name: 'list' }, permissions: ['ManageGuild'], audit: false, ephemeral: true,
       params: { limit: { type: 'integer', min: 1, max: 25, default: 10, description: 'Nombre' } },
       async run(ctx, { guild, params }) {
         const rows = ctx.db.prepare('SELECT * FROM mu_recordings WHERE guild_id = ? ORDER BY created_at DESC LIMIT ?').all(guild.id, params.limit);
@@ -680,7 +680,7 @@ export default {
       },
     },
     record_delete: {
-      description: 'Supprimer un enregistrement', slash: { group: 'record', name: 'delete' }, permissions: ['ManageGuild'],
+      description: 'Supprimer un enregistrement', slash: { group: 'music', subgroup: 'record', name: 'delete' }, permissions: ['ManageGuild'],
       params: { id: { type: 'integer', required: true, min: 1, description: 'Numéro de l\'enregistrement' } },
       async run(ctx, { guild, params }) {
         const row = ctx.db.prepare('SELECT * FROM mu_recordings WHERE guild_id = ? AND id = ?').get(guild.id, params.id);
@@ -693,7 +693,7 @@ export default {
 
     // ===== /blindtest =====
     blindtest_start: {
-      description: 'Lancer un blind test (playlist ou thème)', slash: { group: 'blindtest', name: 'start' }, permissions: [], cooldown: 10,
+      description: 'Lancer un blind test (playlist ou thème)', slash: { group: 'music', subgroup: 'blindtest', name: 'start' }, permissions: [], cooldown: 10,
       params: {
         source: { type: 'string', description: 'URL de playlist ou thème à rechercher (ex : années 80)', maxLength: 300 },
         manches: { type: 'integer', min: 3, max: 30, description: 'Nombre de manches' },
@@ -728,7 +728,7 @@ export default {
       },
     },
     blindtest_stop: {
-      description: 'Arrêter le blind test en cours', slash: { group: 'blindtest', name: 'stop' }, permissions: [],
+      description: 'Arrêter le blind test en cours', slash: { group: 'music', subgroup: 'blindtest', name: 'stop' }, permissions: [],
       async run(ctx, { guild, actor }) {
         const player = getPlayer(guild.id);
         const bt = player?.blindtest;
@@ -741,7 +741,7 @@ export default {
       },
     },
     blindtest_skip: {
-      description: 'Passer la manche en cours (révèle la réponse)', slash: { group: 'blindtest', name: 'skip' }, permissions: [],
+      description: 'Passer la manche en cours (révèle la réponse)', slash: { group: 'music', subgroup: 'blindtest', name: 'skip' }, permissions: [],
       async run(ctx, { guild, actor }) {
         const bt = getPlayer(guild.id)?.blindtest;
         if (!bt) throw new ActionError('Aucun blind test en cours.');
@@ -751,7 +751,7 @@ export default {
       },
     },
     blindtest_scores: {
-      description: 'Classement cumulé du blind test sur ce serveur', slash: { group: 'blindtest', name: 'scores' }, permissions: [], audit: false,
+      description: 'Classement cumulé du blind test sur ce serveur', slash: { group: 'music', subgroup: 'blindtest', name: 'scores' }, permissions: [], audit: false,
       params: { limit: { type: 'integer', min: 1, max: 25, default: 10, description: 'Nombre de joueurs' } },
       async run(ctx, { guild, params }) {
         const rows = ctx.db.prepare('SELECT * FROM mu_blindtest_scores WHERE guild_id = ? ORDER BY points DESC, found DESC LIMIT ?').all(guild.id, params.limit);

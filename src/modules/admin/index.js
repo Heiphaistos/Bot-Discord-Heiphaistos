@@ -124,11 +124,11 @@ export default {
       autocomplete: moduleAutocomplete,
     },
     prefix_get: {
-      description: 'Afficher le préfixe des commandes texte', slash: { group: 'prefix', name: 'get' }, permissions: [], audit: false,
+      description: 'Afficher le préfixe des commandes texte', slash: { group: 'bot', subgroup: 'prefix', name: 'get' }, permissions: [], audit: false,
       async run(ctx, { guild }) { return { info: true, message: `Préfixe actuel : \`${ctx.getPrefix(guild.id)}\``, data: { prefix: ctx.getPrefix(guild.id) } }; },
     },
     prefix_set: {
-      description: 'Changer le préfixe des commandes texte', slash: { group: 'prefix', name: 'set' }, permissions: ['ManageGuild'],
+      description: 'Changer le préfixe des commandes texte', slash: { group: 'bot', subgroup: 'prefix', name: 'set' }, permissions: ['ManageGuild'],
       params: { prefix: { type: 'string', required: true, maxLength: 5, description: 'Nouveau préfixe (ex: !)' } },
       async run(ctx, { guild, params }) { ctx.db.prepare('UPDATE guilds SET prefix = ? WHERE id = ?').run(params.prefix, guild.id); return { message: `Préfixe défini sur \`${params.prefix}\`` }; },
     },

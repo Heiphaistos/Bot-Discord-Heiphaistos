@@ -171,7 +171,7 @@ export default {
       },
     },
     ar_add: {
-      description: 'Ajouter une réponse automatique', slash: { group: 'autoresponder', name: 'add' }, permissions: ['ManageMessages'], ephemeral: true,
+      description: 'Ajouter une réponse automatique', slash: { group: 'tag', subgroup: 'autoresponder', name: 'add' }, permissions: ['ManageMessages'], ephemeral: true,
       params: {
         trigger: { type: 'string', required: true, maxLength: 200, description: 'Déclencheur (texte, regex ou joker selon le mode)' },
         response: { type: 'text', maxLength: 2000, description: 'Réponse (variables et {random} acceptés)' },
@@ -198,7 +198,7 @@ export default {
       },
     },
     ar_remove: {
-      description: 'Supprimer une réponse automatique', slash: { group: 'autoresponder', name: 'remove' }, permissions: ['ManageMessages'], ephemeral: true,
+      description: 'Supprimer une réponse automatique', slash: { group: 'tag', subgroup: 'autoresponder', name: 'remove' }, permissions: ['ManageMessages'], ephemeral: true,
       params: { id: { type: 'integer', required: true, min: 1, description: 'ID de la réponse automatique', autocomplete: arAutocomplete } },
       async run(ctx, { guild, params }) {
         const n = ctx.db.prepare('DELETE FROM cc_autoresponders WHERE guild_id = ? AND id = ?').run(guild.id, params.id).changes;
@@ -208,7 +208,7 @@ export default {
       },
     },
     ar_list: {
-      description: 'Lister les réponses automatiques', slash: { group: 'autoresponder', name: 'list' }, permissions: ['ManageMessages'], ephemeral: true, audit: false,
+      description: 'Lister les réponses automatiques', slash: { group: 'tag', subgroup: 'autoresponder', name: 'list' }, permissions: ['ManageMessages'], ephemeral: true, audit: false,
       async run(ctx, { guild }) {
         const rows = ctx.db.prepare('SELECT * FROM cc_autoresponders WHERE guild_id = ? ORDER BY id').all(guild.id);
         const lines = rows.map((r) => `**#${r.id}** ${r.enabled ? '🟢' : '🔴'} \`${r.match_type}\` \`${truncate(r.trigger, 50)}\` → ${r.response ? truncate(r.response.replace(/\n/g, ' '), 60) : ''}${r.reaction ? ` ${r.reaction}` : ''} • ${r.uses} util.`);
@@ -216,7 +216,7 @@ export default {
       },
     },
     ar_toggle: {
-      description: 'Activer / désactiver une réponse automatique', slash: { group: 'autoresponder', name: 'toggle' }, permissions: ['ManageMessages'], ephemeral: true,
+      description: 'Activer / désactiver une réponse automatique', slash: { group: 'tag', subgroup: 'autoresponder', name: 'toggle' }, permissions: ['ManageMessages'], ephemeral: true,
       params: { id: { type: 'integer', required: true, min: 1, description: 'ID de la réponse automatique', autocomplete: arAutocomplete } },
       async run(ctx, { guild, params }) {
         const row = ctx.db.prepare('SELECT * FROM cc_autoresponders WHERE guild_id = ? AND id = ?').get(guild.id, params.id);

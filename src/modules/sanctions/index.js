@@ -93,7 +93,7 @@ export default {
   },
   actions: {
     jail: {
-      description: 'Placer un membre en prison (rôle + salons réservés)', slash: { name: 'jail' }, permissions: ['ModerateMembers'], botPermissions: ['ManageRoles', 'ManageChannels'],
+      description: 'Placer un membre en prison (rôle + salons réservés)', slash: false, permissions: ['ModerateMembers'], botPermissions: ['ManageRoles', 'ManageChannels'],
       params: { user: { type: 'user', required: true, description: 'Membre' }, reason: { type: 'string', description: 'Raison', maxLength: 500 }, duration: { type: 'duration', description: 'Durée (ex: 2h, 1d) — vide = jusqu\'à libération manuelle' } },
       async run(ctx, args) { return jailAction(ctx, args); },
     },
@@ -171,7 +171,7 @@ export default {
       },
     },
     tribunal_start: {
-      description: 'Ouvrir un tribunal : la communauté vote une sanction', slash: { group: 'tribunal', name: 'start' }, permissions: ['ModerateMembers'],
+      description: 'Ouvrir un tribunal : la communauté vote une sanction', slash: { group: 'sanction', subgroup: 'tribunal', name: 'start' }, permissions: ['ModerateMembers'],
       params: {
         user: { type: 'user', required: true, description: 'Membre jugé' }, reason: { type: 'string', required: true, description: 'Motif', maxLength: 500 },
         duration: { type: 'duration', description: 'Durée du vote (défaut 24h)', default: '24h', max: 7 * 86400000 },
@@ -204,7 +204,7 @@ export default {
       },
     },
     tribunal_cancel: {
-      description: 'Annuler un tribunal en cours', slash: { group: 'tribunal', name: 'cancel' }, permissions: ['ModerateMembers'],
+      description: 'Annuler un tribunal en cours', slash: { group: 'sanction', subgroup: 'tribunal', name: 'cancel' }, permissions: ['ModerateMembers'],
       params: { id: { type: 'integer', required: true, description: 'Numéro du tribunal', min: 1, autocomplete: true }, reason: { type: 'string', description: 'Raison', maxLength: 300 } },
       async run(ctx, { guild, actor, params }) {
         const row = ctx.db.prepare('SELECT * FROM sc_tribunals WHERE id = ? AND guild_id = ?').get(params.id, guild.id);
@@ -220,7 +220,7 @@ export default {
       autocomplete: openTribunalAutocomplete,
     },
     tribunal_list: {
-      description: 'Lister les tribunaux (en cours ou récents)', slash: { group: 'tribunal', name: 'list' }, permissions: ['ModerateMembers'], ephemeral: true, audit: false,
+      description: 'Lister les tribunaux (en cours ou récents)', slash: { group: 'sanction', subgroup: 'tribunal', name: 'list' }, permissions: ['ModerateMembers'], ephemeral: true, audit: false,
       params: { all: { type: 'boolean', description: 'Inclure les tribunaux terminés', default: false }, limit: { type: 'integer', min: 1, max: 25, default: 10, description: 'Nombre' } },
       async run(ctx, { guild, params }) {
         const rows = ctx.db.prepare("SELECT * FROM sc_tribunals WHERE guild_id = ? AND (? = 1 OR status = 'open') ORDER BY id DESC LIMIT ?").all(guild.id, params.all ? 1 : 0, params.limit);
@@ -229,7 +229,7 @@ export default {
       },
     },
     tribunal_info: {
-      description: 'Détails d\'un tribunal', slash: { group: 'tribunal', name: 'info' }, permissions: ['ModerateMembers'], ephemeral: true, audit: false,
+      description: 'Détails d\'un tribunal', slash: { group: 'sanction', subgroup: 'tribunal', name: 'info' }, permissions: ['ModerateMembers'], ephemeral: true, audit: false,
       params: { id: { type: 'integer', required: true, description: 'Numéro du tribunal', min: 1, autocomplete: true } },
       async run(ctx, { guild, params }) {
         const row = ctx.db.prepare('SELECT * FROM sc_tribunals WHERE id = ? AND guild_id = ?').get(params.id, guild.id);
@@ -239,7 +239,7 @@ export default {
       autocomplete: openTribunalAutocomplete,
     },
     tribunal_end: {
-      description: 'Clore un tribunal immédiatement et appliquer le verdict', slash: { group: 'tribunal', name: 'end' }, permissions: ['ModerateMembers'],
+      description: 'Clore un tribunal immédiatement et appliquer le verdict', slash: { group: 'sanction', subgroup: 'tribunal', name: 'end' }, permissions: ['ModerateMembers'],
       params: { id: { type: 'integer', required: true, description: 'Numéro du tribunal', min: 1, autocomplete: true } },
       async run(ctx, { guild, params }) {
         const row = ctx.db.prepare('SELECT * FROM sc_tribunals WHERE id = ? AND guild_id = ?').get(params.id, guild.id);

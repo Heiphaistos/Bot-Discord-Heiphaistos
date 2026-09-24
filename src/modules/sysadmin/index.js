@@ -203,7 +203,7 @@ function powerAction(verb, label, emoji) {
 
 function dockerPower(verb, label, emoji) {
   return {
-    description: `Docker : ${label} un conteneur`, slash: { group: 'docker', name: verb }, permissions: OWNER, guildOnly: false,
+    description: `Docker : ${label} un conteneur`, slash: { group: 'sys', subgroup: 'docker', name: verb }, permissions: OWNER, guildOnly: false,
     params: { conteneur: containerParam },
     async run(ctx, { guild, params }) {
       const c = await docker(ctx, guild).action(params.conteneur, verb);
@@ -541,7 +541,7 @@ export default {
     },
     // ================= Docker =================
     docker_ps: {
-      description: 'Lister les conteneurs Docker', slash: { group: 'docker', name: 'ps' }, permissions: OWNER, guildOnly: false, audit: false,
+      description: 'Lister les conteneurs Docker', slash: { group: 'sys', subgroup: 'docker', name: 'ps' }, permissions: OWNER, guildOnly: false, audit: false,
       params: { tous: { type: 'boolean', description: 'Inclure les conteneurs arrêtés', default: true } },
       async run(ctx, { guild, params }) {
         let list = await docker(ctx, guild).listContainers();
@@ -555,7 +555,7 @@ export default {
     docker_stop: dockerPower('stop', 'arrêt', '⏹️'),
     docker_restart: dockerPower('restart', 'redémarrage', '🔄'),
     docker_logs: {
-      description: 'Derniers logs d\'un conteneur', slash: { group: 'docker', name: 'logs' }, permissions: OWNER, guildOnly: false, ephemeral: true, audit: false,
+      description: 'Derniers logs d\'un conteneur', slash: { group: 'sys', subgroup: 'docker', name: 'logs' }, permissions: OWNER, guildOnly: false, ephemeral: true, audit: false,
       params: { conteneur: containerParam, lignes: { type: 'integer', description: 'Nombre de lignes (défaut 100)', min: 1, max: 5000, default: 100 } },
       async run(ctx, { guild, params }) {
         const { container, text } = await docker(ctx, guild).logs(params.conteneur, params.lignes);
@@ -563,7 +563,7 @@ export default {
       },
     },
     docker_stats: {
-      description: 'Consommation CPU/RAM/réseau des conteneurs', slash: { group: 'docker', name: 'stats' }, permissions: OWNER, guildOnly: false, audit: false,
+      description: 'Consommation CPU/RAM/réseau des conteneurs', slash: { group: 'sys', subgroup: 'docker', name: 'stats' }, permissions: OWNER, guildOnly: false, audit: false,
       params: { conteneur: { ...containerParam, required: false, description: 'Conteneur (défaut : tous les conteneurs actifs)' } },
       async run(ctx, { guild, params }) {
         const d = docker(ctx, guild);
@@ -577,7 +577,7 @@ export default {
       },
     },
     docker_images: {
-      description: 'Lister les images Docker', slash: { group: 'docker', name: 'images' }, permissions: OWNER, guildOnly: false, audit: false,
+      description: 'Lister les images Docker', slash: { group: 'sys', subgroup: 'docker', name: 'images' }, permissions: OWNER, guildOnly: false, audit: false,
       async run(ctx, { guild }) {
         const imgs = (await docker(ctx, guild).images()).sort((a, b) => b.size - a.size);
         const total = imgs.reduce((a, i) => a + i.size, 0);
@@ -586,7 +586,7 @@ export default {
       },
     },
     docker_inspect: {
-      description: 'Détails d\'un conteneur (variables d\'env masquées)', slash: { group: 'docker', name: 'inspect' }, permissions: OWNER, guildOnly: false, ephemeral: true, audit: false,
+      description: 'Détails d\'un conteneur (variables d\'env masquées)', slash: { group: 'sys', subgroup: 'docker', name: 'inspect' }, permissions: OWNER, guildOnly: false, ephemeral: true, audit: false,
       params: { conteneur: containerParam },
       async run(ctx, { guild, params }) {
         const info = await docker(ctx, guild).inspect(params.conteneur);
@@ -611,7 +611,7 @@ export default {
       },
     },
     docker_prune: {
-      description: 'Supprimer les ressources Docker inutilisées', slash: { group: 'docker', name: 'prune' }, permissions: OWNER, guildOnly: false,
+      description: 'Supprimer les ressources Docker inutilisées', slash: { group: 'sys', subgroup: 'docker', name: 'prune' }, permissions: OWNER, guildOnly: false,
       params: { cible: { type: 'choice', required: true, description: 'Ressources à nettoyer', choices: [{ name: 'Conteneurs arrêtés', value: 'containers' }, { name: 'Images orphelines', value: 'images' }, { name: 'Réseaux inutilisés', value: 'networks' }, { name: 'Volumes inutilisés (⚠️ données)', value: 'volumes' }, { name: 'Tout sauf volumes', value: 'all' }] }, confirm: { type: 'boolean', description: 'Confirmer la suppression', default: false } },
       async run(ctx, { guild, params }) {
         if (!params.confirm) throw new ActionError(`Opération destructive : relancez avec \`confirm:true\` pour nettoyer **${params.cible}**.`);
@@ -621,7 +621,7 @@ export default {
       },
     },
     docker_info: {
-      description: 'Informations sur le démon Docker', slash: { group: 'docker', name: 'info' }, permissions: OWNER, guildOnly: false, audit: false,
+      description: 'Informations sur le démon Docker', slash: { group: 'sys', subgroup: 'docker', name: 'info' }, permissions: OWNER, guildOnly: false, audit: false,
       async run(ctx, { guild }) {
         const d = docker(ctx, guild);
         const i = await d.info();

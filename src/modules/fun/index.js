@@ -690,7 +690,7 @@ export default {
 
     // ------------------------------------------------------------ /meme
     meme_random: {
-      description: 'Un mème au hasard depuis Reddit', slash: { group: 'meme', name: 'random' }, permissions: [], audit: false, cooldown: 3,
+      description: 'Un mème au hasard depuis Reddit', slash: { group: 'fun', subgroup: 'meme', name: 'random' }, permissions: [], audit: false, cooldown: 3,
       params: { subreddit: { type: 'string', description: 'Subreddit (ex : memes, rance)', maxLength: 50 } },
       async run(ctx, { guild, params, channel }) {
         const subs = settingsOf(ctx, guild?.id).memeSubreddits || [];
@@ -699,7 +699,7 @@ export default {
       },
     },
     meme_create: {
-      description: 'Créer un mème à partir d\'un modèle memegen.link', slash: { group: 'meme', name: 'create' }, permissions: [], audit: false,
+      description: 'Créer un mème à partir d\'un modèle memegen.link', slash: { group: 'fun', subgroup: 'meme', name: 'create' }, permissions: [], audit: false,
       params: {
         template: { type: 'string', required: true, description: 'Identifiant du modèle (voir /meme templates)', autocomplete: true, maxLength: 64 },
         haut: { type: 'string', description: 'Texte du haut', maxLength: 200 },
@@ -721,7 +721,7 @@ export default {
       },
     },
     meme_templates: {
-      description: 'Lister les modèles de mèmes disponibles', slash: { group: 'meme', name: 'templates' }, permissions: [], audit: false,
+      description: 'Lister les modèles de mèmes disponibles', slash: { group: 'fun', subgroup: 'meme', name: 'templates' }, permissions: [], audit: false,
       params: { recherche: { type: 'string', description: 'Filtrer par nom', maxLength: 50 } },
       async run(ctx, { params }) {
         const { list, live } = await memeTemplates();
@@ -732,7 +732,7 @@ export default {
       },
     },
     meme_caption: {
-      description: 'Ajouter un texte façon mème sur une image (« haut | bas »)', slash: { group: 'meme', name: 'caption' }, permissions: [], audit: false, cooldown: 5,
+      description: 'Ajouter un texte façon mème sur une image (« haut | bas »)', slash: { group: 'fun', subgroup: 'meme', name: 'caption' }, permissions: [], audit: false, cooldown: 5,
       params: {
         texte: { type: 'string', required: true, description: 'Texte ; séparez haut et bas par « | »', maxLength: 300 },
         image_url: { type: 'string', description: 'URL de l\'image', maxLength: 1000 },
@@ -758,7 +758,7 @@ export default {
     image_wanted: imgAct('wanted', 'Avis de recherche', 'Affiche WANTED', async (i, p, { ctx, guild, actor }) => img.wanted(i, await nameOf(ctx, guild, p.membre || actor.id), p.prime || null), { prime: { type: 'integer', description: 'Montant de la récompense', min: 1, max: 1000000000 } }),
     image_triggered: imgAct('triggered', 'Triggered', 'GIF animé « TRIGGERED »', (i) => img.triggered(i)),
     image_removebg: {
-      description: 'Supprimer l\'arrière-plan d\'une image (API remove.bg)', slash: { group: 'image', name: 'removebg' }, permissions: [], audit: false, cooldown: 10,
+      description: 'Supprimer l\'arrière-plan d\'une image (API remove.bg)', slash: { group: 'fun', subgroup: 'image', name: 'removebg' }, permissions: [], audit: false, cooldown: 10,
       params: { ...IMAGE_PARAMS },
       async run(ctx, { guild, actor, params, source }) {
         const key = settingsOf(ctx, guild?.id).removeBgKey || process.env.REMOVEBG_API_KEY;

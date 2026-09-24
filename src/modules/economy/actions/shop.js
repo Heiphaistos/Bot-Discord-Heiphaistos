@@ -86,7 +86,7 @@ const itemParams = (required) => ({
 
 export const shopActions = {
   shop_list: {
-    description: 'Voir les objets de la boutique', slash: { group: 'shop', name: 'list' },
+    description: 'Voir les objets de la boutique', slash: { group: 'eco', subgroup: 'shop', name: 'list' },
     permissions: [], audit: false,
     params: { page: { type: 'integer', description: 'Page', min: 1, max: 100, default: 1 } },
     async run(ctx, { guild, params }) {
@@ -101,7 +101,7 @@ export const shopActions = {
   },
 
   shop_info: {
-    description: 'Détails d\'un objet de la boutique', slash: { group: 'shop', name: 'info' },
+    description: 'Détails d\'un objet de la boutique', slash: { group: 'eco', subgroup: 'shop', name: 'info' },
     permissions: [], audit: false,
     params: { item: { type: 'string', required: true, description: 'Objet (nom ou ID)', autocomplete: shopItemAutocomplete, maxLength: 64 } },
     async run(ctx, { guild, actor, params }) {
@@ -124,7 +124,7 @@ export const shopActions = {
   },
 
   shop_buy: {
-    description: 'Acheter un objet de la boutique', slash: { group: 'shop', name: 'buy' },
+    description: 'Acheter un objet de la boutique', slash: { group: 'eco', subgroup: 'shop', name: 'buy' },
     permissions: [], cooldown: 2,
     params: {
       item: { type: 'string', required: true, description: 'Objet (nom ou ID)', autocomplete: shopItemAutocomplete, maxLength: 64 },
@@ -161,7 +161,7 @@ export const shopActions = {
   },
 
   shop_sell: {
-    description: 'Revendre un objet de votre inventaire', slash: { group: 'shop', name: 'sell' },
+    description: 'Revendre un objet de votre inventaire', slash: { group: 'eco', subgroup: 'shop', name: 'sell' },
     permissions: [], cooldown: 2,
     params: {
       item: { type: 'string', required: true, description: 'Objet de votre inventaire', autocomplete: (ctx, a) => inventoryAutocomplete(ctx, a), maxLength: 64 },

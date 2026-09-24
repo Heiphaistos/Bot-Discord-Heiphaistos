@@ -249,7 +249,7 @@ export default {
       },
     },
     stream_add: {
-      description: 'Annoncer les lives d\'une chaîne Twitch', slash: { group: 'stream', name: 'add' }, permissions: ['ManageGuild'], ephemeral: true,
+      description: 'Annoncer les lives d\'une chaîne Twitch', slash: { group: 'feed', subgroup: 'stream', name: 'add' }, permissions: ['ManageGuild'], ephemeral: true,
       params: {
         login: { type: 'string', required: true, maxLength: 100, description: 'Identifiant Twitch (ou URL twitch.tv/…)' },
         channel: { type: 'channel', required: true, description: 'Salon des annonces', channelTypes: ['GuildText', 'GuildAnnouncement'] },
@@ -275,7 +275,7 @@ export default {
       },
     },
     stream_list: {
-      description: 'Lister les chaînes Twitch suivies', slash: { group: 'stream', name: 'list' }, permissions: ['ManageGuild'], ephemeral: true, audit: false,
+      description: 'Lister les chaînes Twitch suivies', slash: { group: 'feed', subgroup: 'stream', name: 'list' }, permissions: ['ManageGuild'], ephemeral: true, audit: false,
       async run(ctx, { guild }) {
         const rows = ctx.db.prepare('SELECT * FROM fd_streams WHERE guild_id = ? ORDER BY id').all(guild.id);
         const lines = rows.map((r) => `**#${r.id}** ${r.live ? '🔴 en live' : '⚫ hors ligne'} — [${r.display_name || r.login}](https://twitch.tv/${r.login}) → <#${r.channel_id}>${r.game_filter ? ` • jeux : ${truncate(r.game_filter, 60)}` : ''}${r.last_error ? ` • ⚠️ ${truncate(r.last_error, 60)}` : ''}`);
@@ -283,7 +283,7 @@ export default {
       },
     },
     stream_remove: {
-      description: 'Ne plus suivre une chaîne Twitch', slash: { group: 'stream', name: 'remove' }, permissions: ['ManageGuild'], ephemeral: true,
+      description: 'Ne plus suivre une chaîne Twitch', slash: { group: 'feed', subgroup: 'stream', name: 'remove' }, permissions: ['ManageGuild'], ephemeral: true,
       params: { id: { type: 'integer', required: true, min: 1, description: 'ID du suivi', autocomplete: streamAutocomplete } },
       async run(ctx, { guild, params }) {
         const row = ctx.db.prepare('SELECT * FROM fd_streams WHERE guild_id = ? AND id = ?').get(guild.id, params.id);
@@ -294,7 +294,7 @@ export default {
       },
     },
     stream_check: {
-      description: 'Vérifier maintenant l\'état des chaînes Twitch suivies', slash: { group: 'stream', name: 'check' }, permissions: ['ManageGuild'], ephemeral: true, audit: false,
+      description: 'Vérifier maintenant l\'état des chaînes Twitch suivies', slash: { group: 'feed', subgroup: 'stream', name: 'check' }, permissions: ['ManageGuild'], ephemeral: true, audit: false,
       async run(ctx, { guild }) {
         const rows = ctx.db.prepare('SELECT COUNT(*) n FROM fd_streams WHERE guild_id = ?').get(guild.id).n;
         if (!rows) throw new ActionError('Aucune chaîne suivie');

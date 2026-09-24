@@ -23,7 +23,7 @@ function parseShares(raw, max) {
 
 export const marketActions = {
   market_list: {
-    description: 'Cours de la bourse', slash: { group: 'market', name: 'list' },
+    description: 'Cours de la bourse', slash: { group: 'eco', subgroup: 'market', name: 'list' },
     permissions: [], audit: false,
     async run(ctx, { guild }) {
       const s = S(ctx, guild.id); requireMarket(s);
@@ -35,7 +35,7 @@ export const marketActions = {
   },
 
   market_info: {
-    description: 'Détails d\'un actif boursier', slash: { group: 'market', name: 'info' },
+    description: 'Détails d\'un actif boursier', slash: { group: 'eco', subgroup: 'market', name: 'info' },
     permissions: [], audit: false,
     params: { symbol: { type: 'string', required: true, description: 'Symbole (ex : HEIPH)', autocomplete: stockAutocomplete, maxLength: 10 } },
     async run(ctx, { guild, actor, params }) {
@@ -62,7 +62,7 @@ export const marketActions = {
   },
 
   market_buy: {
-    description: 'Acheter des actions', slash: { group: 'market', name: 'buy' },
+    description: 'Acheter des actions', slash: { group: 'eco', subgroup: 'market', name: 'buy' },
     permissions: [], cooldown: 2,
     params: {
       symbol: { type: 'string', required: true, description: 'Symbole', autocomplete: stockAutocomplete, maxLength: 10 },
@@ -85,7 +85,7 @@ export const marketActions = {
   },
 
   market_sell: {
-    description: 'Vendre des actions', slash: { group: 'market', name: 'sell' },
+    description: 'Vendre des actions', slash: { group: 'eco', subgroup: 'market', name: 'sell' },
     permissions: [], cooldown: 2,
     params: {
       symbol: { type: 'string', required: true, description: 'Symbole', autocomplete: stockAutocomplete, maxLength: 10 },
@@ -104,7 +104,7 @@ export const marketActions = {
   },
 
   market_portfolio: {
-    description: 'Portefeuille boursier d\'un membre', slash: { group: 'market', name: 'portfolio' },
+    description: 'Portefeuille boursier d\'un membre', slash: { group: 'eco', subgroup: 'market', name: 'portfolio' },
     permissions: [], audit: false,
     params: { user: { type: 'user', description: 'Membre (par défaut : vous)' } },
     async run(ctx, { guild, actor, params }) {
@@ -118,7 +118,7 @@ export const marketActions = {
   },
 
   market_history: {
-    description: 'Graphique de l\'historique d\'un actif', slash: { group: 'market', name: 'history' },
+    description: 'Graphique de l\'historique d\'un actif', slash: { group: 'eco', subgroup: 'market', name: 'history' },
     permissions: [], audit: false, cooldown: 3,
     params: {
       symbol: { type: 'string', required: true, description: 'Symbole', autocomplete: stockAutocomplete, maxLength: 10 },
@@ -144,7 +144,7 @@ export const marketActions = {
   },
 
   market_create: {
-    description: 'Créer un nouvel actif boursier', slash: { group: 'market', name: 'create' },
+    description: 'Créer un nouvel actif boursier', slash: { group: 'eco', subgroup: 'market', name: 'create' },
     permissions: ['ManageGuild'],
     params: {
       symbol: { type: 'string', required: true, description: 'Symbole (2-6 caractères, ex : TACO)', maxLength: 6 },
@@ -163,7 +163,7 @@ export const marketActions = {
   },
 
   market_delete: {
-    description: 'Supprimer un actif (les positions sont rachetées au cours actuel)', slash: { group: 'market', name: 'delete' },
+    description: 'Supprimer un actif (les positions sont rachetées au cours actuel)', slash: { group: 'eco', subgroup: 'market', name: 'delete' },
     permissions: ['ManageGuild'],
     params: {
       symbol: { type: 'string', required: true, description: 'Symbole', autocomplete: stockAutocomplete, maxLength: 10 },
