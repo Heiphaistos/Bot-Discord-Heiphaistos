@@ -56,10 +56,15 @@ async function refreshReportMessage(ctx, guild, r) {
 }
 
 /** Crée un signalement avec contrôles anti-abus. */
+export function reportChannelOrThrow(ctx, guild) {
+  const ch = textChannel(guild, settingsOf(ctx, guild.id).reportChannel);
+  if (!ch) throw new ActionError('Les signalements ne sont pas configurés sur ce serveur (paramètre « reportChannel » du module modtools).');
+  return ch;
+}
+
 export async function createReport(ctx, guild, actor, { type, target, message = null, reason }) {
   const s = settingsOf(ctx, guild.id);
-  const ch = textChannel(guild, s.reportChannel);
-  if (!ch) throw new ActionError('Les signalements ne sont pas configurés sur ce serveur (paramètre « reportChannel » du module modtools).');
+  const ch = reportChannelOrThrow(ctx, guild);
   if ((s.reportBlockedUsers || []).includes(actor.id)) throw new ActionError('Vous n\'êtes pas autorisé à envoyer des signalements sur ce serveur.');
   if (!reason || reason.trim().length < 3) throw new ActionError('Merci de préciser une raison (3 caractères minimum).');
   if (target?.id === actor.id) throw new ActionError('Vous ne pouvez pas vous signaler vous-même.');
@@ -129,6 +134,7 @@ export const reportActions = {
     description: 'Signaler un utilisateur au staff', slash: { group: 'report', name: 'user' }, permissions: [], ephemeral: true, audit: false,
     params: { user: { type: 'user', required: true, description: 'Utilisateur à signaler' }, reason: { type: 'string', required: true, description: 'Raison du signalement', maxLength: 1000 } },
     async run(ctx, { guild, actor, params }) {
+      reportChannelOrThrow(ctx, guild);
       const user = await ctx.resolve.user(params.user);
       if (!user) throw new ActionError('Utilisateur introuvable');
       const r = await createReport(ctx, guild, actor, { type: 'user', target: user, reason: params.reason });
@@ -143,6 +149,7 @@ export const reportActions = {
       channel: { type: 'channel', description: 'Salon du message (défaut : salon courant)' },
     },
     async run(ctx, { guild, actor, params, channel }) {
+      reportChannelOrThrow(ctx, guild);
       const ref = parseMessageRef(params.message_id);
       if (!ref) throw new ActionError('ID ou lien de message invalide');
       if (ref.guildId && ref.guildId !== guild.id) throw new ActionError('Ce message ne provient pas de ce serveur');
