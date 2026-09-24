@@ -94,7 +94,9 @@ export function explainCron(expr) {
   else if (!dom.any && dow.any) day = `le ${describeField('dom', dom)} du mois`;
   else if (dom.any && !dow.any) day = dowPhrase(dow);
   else day = `le ${describeField('dom', dom)} du mois ou ${dowPhrase(dow)}`;
-  const mon = month.any ? '' : ` en ${describeField('month', month)}`;
+  let mon = '';
+  if (!month.any) { const md = describeField('month', month); mon = md.startsWith('de ') ? `, ${md}` : ` en ${md}`; }
+  if (single(dom) && dow.any && single(month)) { day = `le ${nameOf('dom', dom.parts[0].from)} ${MONTHS[month.parts[0].from - 1]}`; mon = ''; }
   const sentence = `${cap(time)}, ${day}${mon}.`;
   const details = FIELDS.map((f) => ({ field: f.label, raw: parsed.fields[f.key].raw, description: describeField(f.key, parsed.fields[f.key]) }));
   return { ...parsed, sentence, details };
@@ -106,7 +108,7 @@ function hourPhrase(hour) {
   return d;
 }
 function dowPhrase(dow) {
-  if (dow.parts.every((p) => p.type === 'value')) return `le ${joinFr([...dow.parts.map((p) => DAYS[p.from % 7])])}`;
+  if (dow.parts.every((p) => p.type === 'value')) return joinFr(dow.parts.map((p) => `le ${DAYS[p.from % 7]}`));
   const d = describeField('dow', dow);
   return d.startsWith('de ') ? `du ${d.slice(3).replace(' à ', ' au ')}` : d;
 }

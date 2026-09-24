@@ -48,7 +48,12 @@ const DAY_NAMES = { dim: 0, dimanche: 0, sun: 0, sunday: 0, lun: 1, lundi: 1, mo
 // ================================================================
 // Validation / normalisation
 // ================================================================
-const idList = (v) => (Array.isArray(v) ? v : (v === undefined || v === null || v === '' ? [] : String(v).split(/[,\s]+/))).map((x) => (String(x).includes('{') ? String(x) : extractId(x))).filter(Boolean);
+const idList = (v) => (Array.isArray(v) ? v : (v === undefined || v === null || v === '' ? [] : String(v).split(/[,\s]+/))).filter((x) => x !== '' && x !== null && x !== undefined).map((x) => {
+  if (String(x).includes('{')) return String(x);
+  const id = extractId(x);
+  if (!id) throw new ActionError(`Identifiant Discord invalide : « ${x} »`);
+  return id;
+});
 const strList = (v) => (Array.isArray(v) ? v : (v === undefined || v === null || v === '' ? [] : [v])).map((x) => String(x)).filter((x) => x.length);
 
 function durationOf(v, label) {

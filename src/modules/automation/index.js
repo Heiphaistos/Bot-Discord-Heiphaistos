@@ -4,7 +4,7 @@ import { embed, infoEmbed, formatDuration, discordTimestamp, truncate, codeBlock
 import { parseSchedule, nextRun, nextCronRuns, describeSchedule, safeTimezone, isValidTimezone } from './cron.js';
 import {
   TRIGGERS, CONDITIONS, ACTIONS, MAX_ACTIONS, normalizeRule, normalizeTrigger, normalizeConditions, normalizeActions, getRules, getRule, insertRule, invalidateRules,
-  getVars, getVar, setVar, deleteVar, VAR_NAME_RE, executeRule, matchTrigger, syncRuleJob, scheduleInfo, summarizeRule, producedChain, currentChain, hydrateRule,
+  getVar, setVar, deleteVar, VAR_NAME_RE, executeRule, matchTrigger, syncRuleJob, scheduleInfo, summarizeRule, producedChain, currentChain, hydrateRule,
 } from './engine.js';
 import { TEMPLATES, TEMPLATE_CHOICES, instantiateTemplate } from './templates.js';
 

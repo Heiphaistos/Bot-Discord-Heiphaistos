@@ -41,11 +41,11 @@ export const TEMPLATES = {
   },
   weekly_backup: {
     label: 'Sauvegarde hebdomadaire du serveur (dimanche 3 h)', needs: [], schedule: '0 3 * * 0',
-    rule: { trigger: { type: 'schedule', schedule: '$SCHEDULE' }, conditions: [], actions: [{ type: 'runAction', module: 'backup', action: 'create', params: {} }, { type: 'log', message: '💾 Sauvegarde hebdomadaire : {local.lastResult}' }] },
+    rule: { trigger: { type: 'schedule', schedule: '$SCHEDULE' }, conditions: [], actions: [{ type: 'runAction', module: 'backup', action: 'backup_create', params: {} }, { type: 'log', message: '💾 Sauvegarde hebdomadaire : {local.lastResult}' }] },
   },
   daily_db_backup: {
     label: 'Sauvegarde quotidienne de la base (propriétaire, 2 h)', needs: [], schedule: '0 2 * * *',
-    rule: { trigger: { type: 'schedule', schedule: '$SCHEDULE' }, conditions: [], actions: [{ type: 'runAction', module: 'sysadmin', action: 'db_backup', params: {} }, { type: 'log', message: '🗄️ Sauvegarde de la base : {local.lastResult}' }] },
+    rule: { trigger: { type: 'schedule', schedule: '$SCHEDULE' }, conditions: [], actions: [{ type: 'runAction', module: 'sysadmin', action: 'dbbackup_now', params: {} }, { type: 'log', message: '🗄️ Sauvegarde de la base : {local.lastResult}' }] },
   },
   leave_log: {
     label: 'Journal des départs', needs: ['channel'],
