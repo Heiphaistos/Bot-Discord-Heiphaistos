@@ -140,4 +140,3 @@ async function listGroupActions(rt, g) {
   info(c.gray(`\nDétail : heiphais action ${g.module} <action>`));
 }
 
-export { usageError };

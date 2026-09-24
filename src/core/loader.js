@@ -49,9 +49,11 @@ export async function installModules(ctx) {
     if (mod.migrations?.length) migrate(db, mod.name, mod.migrations);
     for (const [type, fn] of Object.entries(mod.jobs || {})) scheduler.register(mod.name, type, fn);
   }
-  // Discord events: group by event name so each is registered once
+  // Discord events: group by event name so each is registered once.
+  // Handlers run in module `priority` order (lower first, default 100), then alphabetical.
   const byEvent = new Map();
-  for (const mod of modules.values()) {
+  const ordered = [...modules.values()].sort((a, b) => (a.priority ?? 100) - (b.priority ?? 100) || a.name.localeCompare(b.name));
+  for (const mod of ordered) {
     for (const ev of mod.events || []) {
       if (!byEvent.has(ev.name)) byEvent.set(ev.name, []);
       byEvent.get(ev.name).push({ mod, ev });
@@ -72,7 +74,7 @@ export async function installModules(ctx) {
       }
     });
   }
-  for (const mod of modules.values()) {
+  for (const mod of ordered) {
     if (typeof mod.init === 'function') {
       try { await mod.init(ctx); } catch (err) { logger.error({ module: mod.name, err }, 'Erreur init module'); }
     }

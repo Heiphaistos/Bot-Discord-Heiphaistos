@@ -15,5 +15,5 @@ export class Bus extends EventEmitter {
 export const EVENTS = [
   'action', 'modAction', 'memberJoin', 'memberLeave', 'memberBan', 'memberUnban', 'messageDelete', 'messageEdit',
   'ticketOpen', 'ticketClose', 'giveawayEnd', 'levelUp', 'suggestionNew', 'suggestionStatus', 'raidDetected',
-  'automodTrigger', 'backupCreated', 'archiveCreated', 'verificationPassed', 'pollEnd', 'reminder', 'custom',
+  'automodTrigger', 'backupCreated', 'archiveCreated', 'verificationPassed', 'pollEnd', 'reminder', 'inviteJoin', 'birthday', 'achievement', 'custom',
 ];

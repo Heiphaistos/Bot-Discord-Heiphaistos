@@ -21,6 +21,7 @@ export default {
   // category ∈ general | moderation | community | utility | fun | music | economy | integrations | system | gaming | security
   defaultEnabled: true,            // false pour les modules optionnels (musique, sysadmin, gaming…)
   core: false,                     // true = jamais désactivable (réservé à admin)
+  priority: 100,                   // ordre d'exécution des handlers d'évènements et de init (plus petit = plus tôt ; défaut 100)
   defaultPermissions: ['ManageGuild'], // optionnel : permissions par défaut des actions qui n'en déclarent pas
   slashGroups: { xp: 'Gestion de l\'XP', 'eco.shop': 'Boutique' }, // descriptions des groupes / sous-groupes
   settings: { /* schéma des paramètres par serveur, voir ci-dessous */ },

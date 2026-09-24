@@ -4,7 +4,7 @@
  * Usage: node src/scripts/check.js [--only module1,module2] [--verbose]
  */
 process.env.PANEL_SESSION_SECRET ||= 'check-secret';
-process.env.DATABASE_PATH ||= '/tmp/heiphaisbot-check.db';
+process.env.DATABASE_PATH ||= `/tmp/heiphaisbot-check-${process.pid}.db`;
 process.env.LOG_LEVEL ||= 'warn';
 process.env.PANEL_PORT ||= '0';
 const { config } = await import('../config.js');
@@ -83,6 +83,7 @@ for (const m of mods) for (const v of m.panel?.views || []) for (const ra of [..
 await app.close();
 ctx.scheduler.stop();
 db.close();
+for (const suffix of ['', '-wal', '-shm']) { try { fs.unlinkSync(process.env.DATABASE_PATH + suffix); } catch { /* ignore */ } }
 if (failures) { console.error(`\n${failures} problème(s) détecté(s)`); process.exit(1); }
 console.log('\n🎉 Vérification terminée sans erreur');
 process.exit(0);
