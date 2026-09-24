@@ -155,7 +155,7 @@ export function evaluate(expression, { angle = 'rad', variables = {} } = {}) {
     if (t.t === 'id') {
       pos++;
       if (isOp('(')) {
-        const fn = FUNCS[t.v];
+        const fn = Object.hasOwn(FUNCS, t.v) ? FUNCS[t.v] : null;
         if (!fn) throw new CalcError(`Fonction inconnue : ${t.v}`);
         pos++;
         const args = [];
@@ -164,8 +164,8 @@ export function evaluate(expression, { angle = 'rad', variables = {} } = {}) {
         if (args.length < fn[0] || args.length > fn[1]) throw new CalcError(`${t.v}() attend ${fn[0] === fn[1] ? fn[0] : `${fn[0]} à ${fn[1]}`} argument(s)`);
         return fn[2](...args);
       }
-      if (t.v in vars) return vars[t.v];
-      if (FUNCS[t.v]) { // function without parentheses: sqrt 16, sin 30
+      if (Object.hasOwn(vars, t.v)) return vars[t.v];
+      if (Object.hasOwn(FUNCS, t.v)) { // function without parentheses: sqrt 16, sin 30
         const arg = unary();
         if (FUNCS[t.v][0] > 1) throw new CalcError(`${t.v}() nécessite des parenthèses`);
         return FUNCS[t.v][2](arg);

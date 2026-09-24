@@ -142,7 +142,7 @@ export const moneyActions = {
   },
 
   pay: {
-    description: 'Envoyer de l\'argent à un membre (taxe serveur possible)',
+    description: 'Envoyer de l\'argent à un membre (taxe serveur possible)', slash: { group: 'eco', name: 'pay' },
     permissions: [], cooldown: 3,
     params: {
       user: { type: 'user', required: true, description: 'Destinataire' },

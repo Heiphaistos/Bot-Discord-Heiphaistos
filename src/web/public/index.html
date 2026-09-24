@@ -1,1 +1,30 @@
-<!doctype html><title>HeiphaisBot</title>
+<!doctype html>
+<html lang="fr" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark light">
+  <meta name="theme-color" content="#0f1115">
+  <meta name="robots" content="noindex, nofollow">
+  <title>HeiphaisBot · Panel</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%235865F2'/%3E%3Crect x='14' y='22' width='36' height='28' rx='8' fill='white'/%3E%3Ccircle cx='25' cy='36' r='4' fill='%235865F2'/%3E%3Ccircle cx='39' cy='36' r='4' fill='%235865F2'/%3E%3Crect x='30' y='10' width='4' height='12' rx='2' fill='white'/%3E%3C/svg%3E">
+  <script>
+    // Applique le thème avant le premier rendu (évite le flash).
+    try { var t = JSON.parse(localStorage.getItem('hb.theme')); if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; } catch (e) {}
+  </script>
+  <link rel="stylesheet" href="/css/app.css">
+  <script type="module" src="/js/app.js"></script>
+</head>
+<body>
+  <div id="app">
+    <div class="boot" role="status" aria-live="polite">
+      <div class="boot-logo" aria-hidden="true">🤖</div>
+      <span class="spinner"></span>
+      <p class="muted">Chargement du panel…</p>
+    </div>
+  </div>
+  <noscript>
+    <div class="noscript">Le panel HeiphaisBot nécessite JavaScript. Activez-le puis rechargez la page.</div>
+  </noscript>
+</body>
+</html>

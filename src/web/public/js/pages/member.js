@@ -61,5 +61,4 @@ export default async function memberPage(ctx) {
     card({ title: `Permissions (${m.permissions.length})`, icon: 'key', body: isAdmin
       ? h('div', { class: 'callout callout-warn' }, icon('alert', 16), 'Administrateur : ce membre possède toutes les permissions.')
       : h('div', { class: 'perm-grid' }, m.permissions.map((p) => h('span', { class: 'perm', title: p }, h('span', { class: 'bool bool-yes' }, '✓'), permLabel(p)))) }));
-  void icon;
 }

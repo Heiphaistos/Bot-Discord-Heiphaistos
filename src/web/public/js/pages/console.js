@@ -1,10 +1,10 @@
 // Console d'actions : choix module → action, formulaire, résultat, historique rejouable.
 import { h, fmtRelative, fmtDate, categoryLabel, categoryOrder } from '../utils.js';
 import { icon } from '../icons.js';
-import { state, loadCatalog, getGuildModules, isModuleEnabled, getActionDesc } from '../state.js';
+import { loadCatalog, getGuildModules, isModuleEnabled, getActionDesc } from '../state.js';
 import { pageHeader, card, emptyState, button, badge } from '../components/ui.js';
 import { createSearchSelect } from '../components/select.js';
-import { createActionRunner, actionMeta, getHistory, clearHistory, runAction, renderResult } from '../components/action.js';
+import { createActionRunner, actionMeta, getHistory, clearHistory } from '../components/action.js';
 import { confirmDialog } from '../components/modal.js';
 
 export default async function consolePage(ctx) {
@@ -77,5 +77,4 @@ export default async function consolePage(ctx) {
   renderActionSel();
   renderRunner();
   renderHistory();
-  void runAction; void renderResult; void state;
 }

@@ -321,7 +321,7 @@ export async function renderGauges(snap) {
     const start = Math.PI * 0.75; const end = Math.PI * 2.25;
     c.lineCap = 'round'; c.lineWidth = 18;
     c.strokeStyle = '#3a3c42'; c.beginPath(); c.arc(cx, cy, r, start, end); c.stroke();
-    c.strokeStyle = color; c.beginPath(); c.arc(cx, cy, r, start, start + (end - start) * Math.max(0.001, Math.min(1, g.value / 100))); c.stroke();
+    if (g.value > 0.5) { c.strokeStyle = color; c.beginPath(); c.arc(cx, cy, r, start, start + (end - start) * Math.min(1, g.value / 100)); c.stroke(); }
     c.textAlign = 'center';
     c.fillStyle = '#f2f3f5'; c.font = 'bold 30px sans-serif'; c.fillText(g.text, cx, cy + 8);
     c.fillStyle = '#dbdee1'; c.font = 'bold 18px sans-serif'; c.fillText(g.label, cx, cy + 62);

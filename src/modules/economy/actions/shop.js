@@ -242,7 +242,7 @@ export const shopActions = {
   },
 
   inventory: {
-    description: 'Afficher l\'inventaire d\'un membre',
+    description: 'Afficher l\'inventaire d\'un membre', slash: { group: 'eco', name: 'inventory' },
     permissions: [], audit: false,
     params: { user: { type: 'user', description: 'Membre (par défaut : vous)' } },
     async run(ctx, { guild, actor, params }) {

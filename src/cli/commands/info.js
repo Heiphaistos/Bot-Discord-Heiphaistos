@@ -17,7 +17,7 @@ export function registerInfoCommands(program, rt) {
     rt.output(s, () => print(kv([
       ['Bot', s.bot ? `${c.bold(s.bot.tag)} ${c.gray(s.bot.id)}` : c.red('non connecté à Discord')],
       ['Prêt', s.ready ? c.green('oui') : c.red('non')],
-      ['Ping', s.ping >= 0 ? `${s.ping} ms` : c.gray('-')],
+      ['Ping', typeof s.ping === 'number' && s.ping >= 0 ? `${s.ping} ms` : c.gray('-')],
       ['En ligne depuis', formatDuration(s.uptime)],
       ['Serveurs', String(s.guilds)],
       ['Utilisateurs', String(s.users)],

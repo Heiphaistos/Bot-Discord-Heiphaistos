@@ -67,7 +67,11 @@ export async function startShell(program, rt) {
   rt.rl = rl;
   rt.inShell = true;
   let closed = false;
-  rl.on('close', () => { closed = true; });
+  // File d'attente des lignes : fonctionne en TTY comme avec une entrée redirigée (script, pipe).
+  const queue = [];
+  let waiting = null;
+  rl.on('line', (l) => { if (waiting) { const w = waiting; waiting = null; w(l); } else queue.push(l); });
+  rl.on('close', () => { closed = true; if (waiting) { const w = waiting; waiting = null; w(null); } });
   rl.on('SIGINT', () => {
     if (rt.abort) rt.abort.abort();
     else rl.close();
@@ -79,10 +83,10 @@ export async function startShell(program, rt) {
   print(c.gray('Tapez une commande sans « heiphais » (ex : status, modules, run admin ping), help, ou exit.'));
   const prompt = () => `${c.cyan('heiphais')}${rt.config().guild ? c.gray(`[${rt.config().guild}]`) : ''}${c.cyan('>')} `;
   const ask = () => new Promise((resolve) => {
+    if (queue.length) return resolve(queue.shift());
     if (closed) return resolve(null);
-    const onClose = () => resolve(null);
-    rl.once('close', onClose);
-    rl.question(prompt(), (ans) => { rl.off('close', onClose); resolve(ans); });
+    if (process.stdin.isTTY) { rl.setPrompt(prompt()); rl.prompt(); }
+    waiting = resolve;
   });
 
   for (;;) {

@@ -258,7 +258,7 @@ export default {
       },
     },
     lock: {
-      description: 'Verrouiller un salon (empêche @everyone d\'écrire)', permissions: ['ManageChannels'], botPermissions: ['ManageChannels'],
+      description: 'Verrouiller un salon (empêche @everyone d\'écrire)', permissions: ['ManageChannels'], botPermissions: ['ManageChannels'], slash: { group: 'mod', name: 'lock' },
       params: { channel: { type: 'channel', description: 'Salon (défaut : courant)' }, reason: { type: 'string', description: 'Raison' } },
       async run(ctx, { guild, actor, params, channel }) {
         const target = params.channel ? guild.channels.cache.get(params.channel) : channel;
@@ -270,7 +270,7 @@ export default {
       },
     },
     unlock: {
-      description: 'Déverrouiller un salon', permissions: ['ManageChannels'], botPermissions: ['ManageChannels'],
+      description: 'Déverrouiller un salon', permissions: ['ManageChannels'], botPermissions: ['ManageChannels'], slash: { group: 'mod', name: 'unlock' },
       params: { channel: { type: 'channel', description: 'Salon (défaut : courant)' }, reason: { type: 'string', description: 'Raison' } },
       async run(ctx, { guild, actor, params, channel }) {
         const target = params.channel ? guild.channels.cache.get(params.channel) : channel;
@@ -294,7 +294,7 @@ export default {
       },
     },
     slowmode: {
-      description: 'Définir le mode lent d\'un salon', permissions: ['ManageChannels'], botPermissions: ['ManageChannels'],
+      description: 'Définir le mode lent d\'un salon', permissions: ['ManageChannels'], botPermissions: ['ManageChannels'], slash: { group: 'mod', name: 'slowmode' },
       params: { seconds: { type: 'integer', required: true, min: 0, max: 21600, description: 'Secondes (0 = désactivé)' }, channel: { type: 'channel', description: 'Salon (défaut : courant)' } },
       async run(ctx, { guild, params, channel }) {
         const target = params.channel ? guild.channels.cache.get(params.channel) : channel;

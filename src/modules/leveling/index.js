@@ -1162,7 +1162,7 @@ export default {
       },
     },
     achievements: {
-      description: 'Voir les succès débloqués et leur progression', permissions: [], audit: false, cooldown: 3,
+      description: 'Voir les succès débloqués et leur progression', permissions: [], audit: false, cooldown: 3, slash: { group: 'xp', name: 'achievements' },
       params: { user: { type: 'user', description: 'Membre (par défaut : vous)' } },
       async run(ctx, { guild, actor, params }) {
         if (!settingsOf(ctx, guild.id).achievementsEnabled) throw new ActionError('Les succès sont désactivés sur ce serveur');

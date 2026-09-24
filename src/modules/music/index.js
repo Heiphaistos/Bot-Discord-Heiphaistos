@@ -357,11 +357,11 @@ export default {
       },
     },
     pause: {
-      description: 'Mettre la lecture en pause', permissions: [],
+      description: 'Mettre la lecture en pause', permissions: [], slash: { group: 'music', name: 'pause' },
       async run(ctx, { guild, actor }) { const { player } = await control(ctx, guild, actor, { needCurrent: true }); player.pause(); return { message: '⏸️ Lecture en pause.', data: player.status() }; },
     },
     resume: {
-      description: 'Reprendre la lecture', permissions: [],
+      description: 'Reprendre la lecture', permissions: [], slash: { group: 'music', name: 'resume' },
       async run(ctx, { guild, actor }) { const { player } = await control(ctx, guild, actor, { needCurrent: true }); player.resume(); return { message: '▶️ Lecture reprise.', data: player.status() }; },
     },
     queue: {
@@ -374,7 +374,7 @@ export default {
       },
     },
     nowplaying: {
-      description: 'Afficher le titre en cours avec les contrôles', permissions: [], audit: false,
+      description: 'Afficher le titre en cours avec les contrôles', permissions: [], audit: false, slash: { group: 'music', name: 'nowplaying' },
       async run(ctx, { guild }) {
         const player = getPlayer(guild.id);
         const p = nowPlayingPayload(player);
@@ -382,7 +382,7 @@ export default {
       },
     },
     volume: {
-      description: 'Afficher ou régler le volume (0-200, mémorisé)', permissions: [],
+      description: 'Afficher ou régler le volume (0-200, mémorisé)', permissions: [], slash: { group: 'music', name: 'volume' },
       params: { value: { type: 'integer', min: 0, max: 200, description: 'Nouveau volume en %' } },
       async run(ctx, { guild, actor, params }) {
         if (params.value === null) {
@@ -398,7 +398,7 @@ export default {
       },
     },
     loop: {
-      description: 'Mode de boucle : désactivée, piste ou file (sans valeur : suivant)', permissions: [],
+      description: 'Mode de boucle : désactivée, piste ou file (sans valeur : suivant)', permissions: [], slash: { group: 'music', name: 'loop' },
       params: { mode: { type: 'choice', choices: LOOP_CHOICES, description: 'Mode de boucle' } },
       async run(ctx, { guild, actor, params }) {
         const { player } = await control(ctx, guild, actor);
@@ -409,7 +409,7 @@ export default {
       },
     },
     shuffle: {
-      description: 'Mélanger la file d\'attente', permissions: [],
+      description: 'Mélanger la file d\'attente', permissions: [], slash: { group: 'music', name: 'shuffle' },
       async run(ctx, { guild, actor }) { const { player } = await control(ctx, guild, actor); const n = player.shuffle(); return { message: `🔀 ${n} titres mélangés.`, data: { queue: player.queue.map((t, i) => serializeTrack(t, { position: i + 1 })) } }; },
     },
 

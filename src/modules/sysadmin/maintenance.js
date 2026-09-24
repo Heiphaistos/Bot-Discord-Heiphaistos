@@ -12,7 +12,7 @@ import { ActionError } from '../../core/actions.js';
 /** Normalise a MAC address (aa:bb:cc:dd:ee:ff, aa-bb-…, aabb.ccdd.eeff, aabbccddeeff) → "AA:BB:CC:DD:EE:FF" or null. */
 export function normalizeMac(input) {
   const s = String(input || '').trim();
-  if (!/^([0-9A-Fa-f]{2}([:-])){5}[0-9A-Fa-f]{2}$|^[0-9A-Fa-f]{4}\.[0-9A-Fa-f]{4}\.[0-9A-Fa-f]{4}$|^[0-9A-Fa-f]{12}$/.test(s)) return null;
+  if (!/^[0-9A-Fa-f]{2}([:-])(?:[0-9A-Fa-f]{2}\1){4}[0-9A-Fa-f]{2}$|^[0-9A-Fa-f]{4}\.[0-9A-Fa-f]{4}\.[0-9A-Fa-f]{4}$|^[0-9A-Fa-f]{12}$/.test(s)) return null;
   const hex = s.replace(/[^0-9A-Fa-f]/g, '').toUpperCase();
   if (hex === 'FFFFFFFFFFFF' || hex === '000000000000') return null;
   return hex.match(/../g).join(':');

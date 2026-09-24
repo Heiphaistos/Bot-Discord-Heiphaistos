@@ -20,6 +20,7 @@ const isTruthy = (v) => v === true || v === 1 || v === '1' || v === 'true';
 
 /** Rendu d'une cellule selon le type de colonne. */
 export function renderCell(col, value, row, guildId) {
+  if (col.type === 'avatar' || col.type === 'image') return avatar(typeof value === 'string' && /^https?:\/\//.test(value) ? value : null, String(row?.[col.nameKey || 'name'] ?? '?'), 28);
   if (value === null || value === undefined || value === '') return h('span', { class: 'muted' }, '—');
   switch (col.type) {
     case 'date': {

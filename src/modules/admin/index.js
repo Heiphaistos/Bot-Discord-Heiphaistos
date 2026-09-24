@@ -143,7 +143,7 @@ export default {
       },
     },
     embed: {
-      description: 'Envoyer un embed personnalisé', permissions: ['ManageMessages'], botPermissions: ['SendMessages', 'EmbedLinks'], ephemeral: true,
+      description: 'Envoyer un embed personnalisé', permissions: ['ManageMessages'], botPermissions: ['SendMessages', 'EmbedLinks'], ephemeral: true, slash: { group: 'bot', name: 'embed' },
       params: {
         title: { type: 'string', description: 'Titre', maxLength: 256 }, description: { type: 'text', description: 'Description (supporte le markdown)', maxLength: 4000 },
         channel: { type: 'channel', description: 'Salon cible', channelTypes: ['GuildText', 'GuildAnnouncement', 'PublicThread', 'PrivateThread'] }, color: { type: 'color', description: 'Couleur (#hex ou nom)' },

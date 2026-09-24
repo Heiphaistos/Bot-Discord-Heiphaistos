@@ -104,8 +104,8 @@ export function formatInZone(ts, tz, { withDate = true, withSeconds = false } = 
 export function parseDateTime(input, tz = 'UTC', { now = Date.now(), futureOnly = false, parseRelative = null } = {}) {
   const raw = String(input ?? '').trim();
   if (!raw) throw new TimeError('Date vide');
-  const low = norm(raw);
-  if (['now', 'maintenant', 'mtn', 'ajd', 'aujourd hui'].includes(low)) return now;
+  const low = raw.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/\s+/g, ' ');
+  if (['now', 'maintenant', 'mtn', 'ajd', "aujourd'hui", 'aujourd hui'].includes(low)) return now;
   if (/^\d{9,11}$/.test(raw)) return Number(raw) * 1000;
   if (/^\d{12,14}$/.test(raw)) return Number(raw);
   const rel = low.match(/^(?:\+|dans |in )(.+)$/);
@@ -115,7 +115,7 @@ export function parseDateTime(input, tz = 'UTC', { now = Date.now(), futureOnly 
     const t = Date.parse(raw); if (!Number.isNaN(t)) return t;
   }
   let rest = low; let dayShift = 0; let date = null;
-  const words = { 'apres demain': 2, 'après demain': 2, demain: 1, tomorrow: 1, 'aujourd hui': 0, today: 0, ce: 0 };
+  const words = { 'apres-demain': 2, 'apres demain': 2, demain: 1, tomorrow: 1, "aujourd'hui": 0, 'aujourd hui': 0, today: 0, ce: 0 };
   for (const [w, shift] of Object.entries(words)) {
     if (rest.startsWith(`${w} `) || rest === w) { dayShift = shift; rest = rest.slice(w.length).trim(); if (w !== 'ce') date = 'relative'; break; }
   }
