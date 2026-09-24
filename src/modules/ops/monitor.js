@@ -2,6 +2,7 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import tls from 'node:tls';
+import net from 'node:net';
 import { hasBin, parseFailedLogins, parseKeyValue, parseAptUpgradable, parseDnfCheckUpdate, parsePm2Jlist, parseHostPort, fmtBytes, textTable } from './lib.js';
 import { ROOT, config } from '../../config.js';
 
@@ -45,7 +46,7 @@ export function checkCert(host, port = 443, timeout = 10000) {
   return new Promise((resolve) => {
     let done = false;
     const finish = (v) => { if (!done) { done = true; try { socket.destroy(); } catch { /* ignore */ } resolve(v); } };
-    const socket = tls.connect({ host, port, servername: host, rejectUnauthorized: false, timeout }, () => {
+    const socket = tls.connect({ host, port, ...(net.isIP(host) ? {} : { servername: host }), rejectUnauthorized: false, timeout }, () => {
       const cert = socket.getPeerCertificate();
       if (!cert || !cert.valid_to) return finish({ host, port, error: 'Aucun certificat présenté' });
       const validTo = Date.parse(cert.valid_to);

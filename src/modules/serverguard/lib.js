@@ -141,7 +141,8 @@ export function altScore(candidate, reference, { joinCluster = 0 } = {}) {
   const creation = diff < 3600000 ? 1 : diff < 86400000 ? 0.7 : diff < 7 * 86400000 ? 0.3 : 0;
   const cluster = Math.min(1, joinCluster / 3);
   const nameScore = nameSim >= 0.5 ? nameSim : 0;
-  let score = 0.4 * nameScore + 0.3 * avatar + 0.2 * creation + 0.1 * cluster;
+  // Combinaison « noisy-OR » : chaque indice indépendant renforce la suspicion sans dépasser 1
+  let score = 1 - (1 - 0.6 * nameScore) * (1 - 0.7 * avatar) * (1 - 0.35 * creation) * (1 - 0.25 * cluster);
   if (avatar && nameSim >= 0.8) score = Math.max(score, 0.95);
   score = Math.min(1, Math.round(score * 1000) / 1000);
   const reasons = [];
