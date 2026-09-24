@@ -8,3 +8,6 @@ data/archives/
 logs/
 *.log
 .DS_Store
+data/scripts/
+data/sounds/
+data/recordings/

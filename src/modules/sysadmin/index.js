@@ -421,7 +421,7 @@ export default {
     },
     // ================= Wake-on-LAN =================
     wol: {
-      description: 'Réveiller une machine (Wake-on-LAN) par MAC ou nom enregistré', slash: { name: 'wol' }, permissions: OWNER, guildOnly: false,
+      description: 'Réveiller une machine (Wake-on-LAN) par MAC ou nom enregistré', slash: { group: 'sys', subgroup: 'wol', name: 'wake' }, permissions: OWNER, guildOnly: false,
       params: { cible: { type: 'string', required: true, description: 'Adresse MAC ou nom d\'une machine enregistrée', autocomplete: wolAutocomplete, maxLength: 64 }, broadcast: { type: 'string', description: 'Adresse de broadcast (défaut 255.255.255.255)', maxLength: 15 }, port: { type: 'integer', description: 'Port UDP (défaut 9)', min: 1, max: 65535 } },
       async run(ctx, { guild, params }) {
         let mac = normalizeMac(params.cible); let host = null;
