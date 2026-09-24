@@ -180,7 +180,7 @@ export function createField(key, rawDef = {}, opts = {}) {
     const labelEl = h('label', { class: 'field-label', for: id }, label, def.required ? h('span', { class: 'req', 'aria-hidden': 'true', title: 'Requis' }, ' *') : null,
       mode === 'params' && key !== label ? h('code', { class: 'field-key' }, key) : null);
     if (inline) wrapper.append(h('div', { class: 'field-inline-row' }, h('div', { class: 'field-inline-text' }, labelEl, help ? h('div', { class: 'field-help' }, help) : null), controlEl));
-    else wrapper.append(labelEl, help ? h('div', { class: 'field-help', id: `${id}-help` }, help) : null, controlEl);
+    else wrapper.append(...[labelEl, help ? h('div', { class: 'field-help', id: `${id}-help` }, help) : null, controlEl].filter(Boolean));
     errEl = h('div', { class: 'field-error', role: 'alert' });
     wrapper.append(errEl);
     if (help && control?.setAttribute) control.setAttribute('aria-describedby', `${id}-help`);

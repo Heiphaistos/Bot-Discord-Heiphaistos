@@ -216,7 +216,7 @@ async function tokensTab(ctx, panel) {
 
 function showToken(token, name) {
   const origin = location.origin;
-  const cli = `heiphais config set-token ${token}`;
+  const cli = `heiphais config set-url ${origin} && heiphais config set-token ${token}`;
   const curl = `curl -H "Authorization: Bearer ${token}" ${origin}/api/status`;
   const m = openModal({
     title: 'Jeton créé', size: 'md', subtitle: name,

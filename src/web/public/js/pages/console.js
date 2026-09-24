@@ -37,7 +37,7 @@ export default async function consolePage(ctx) {
     history.replaceState(null, '', `#/g/${gid}/console?module=${modName}&action=${actName}`);
     const warn = !isModuleEnabled(gid, modName) ? h('div', { class: 'callout callout-warn' }, icon('alert', 16), 'Ce module est désactivé sur ce serveur : l\'action risque d\'être refusée.') : null;
     const runner = createActionRunner({ guildId: gid, module: modName, action: actName, preset, onResult: () => renderHistory() });
-    runnerSlot.append(h('div', { class: 'console-head' }, h('h2', { class: 'card-title' }, desc.description), actionMeta(desc)), warn, runner.el);
+    runnerSlot.append(...[h('div', { class: 'console-head' }, h('h2', { class: 'card-title' }, desc.description), actionMeta(desc)), warn, runner.el].filter(Boolean));
     if (autoRun) runner.run();
   }
 

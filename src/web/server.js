@@ -213,7 +213,7 @@ export function describeModule(mod) {
   return {
     name: mod.name, label: mod.label || mod.name, description: mod.description || '', category: mod.category || 'general', icon: mod.icon || '📦',
     core: !!mod.core, defaultEnabled: mod.defaultEnabled !== false,
-    settings: Object.fromEntries(Object.entries(mod.settings || {}).map(([k, d]) => [k, { type: d.type, label: d.label || k, description: d.description || '', default: d.default ?? null, choices: d.choices, min: d.min, max: d.max, channelTypes: d.channelTypes, group: d.group || null, placeholder: d.placeholder || null, multiline: !!d.multiline }])),
+    settings: Object.fromEntries(Object.entries(mod.settings || {}).map(([k, d]) => [k, { type: d.type, label: d.label || k, description: d.description || '', default: d.default ?? null, choices: d.choices, min: d.min, max: d.max, channelTypes: d.channelTypes, itemType: d.itemType || null, secret: !!d.secret, group: d.group || null, placeholder: d.placeholder || null, multiline: !!d.multiline }])),
     actions: Object.entries(mod.actions || {}).map(([name, a]) => describeAction(mod, name, a)),
     panel: mod.panel || null,
   };
@@ -238,7 +238,7 @@ async function guildOverview(ctx, guild) {
     boosts: guild.premiumSubscriptionCount, tier: guild.premiumTier, verificationLevel: guild.verificationLevel, locale: guild.preferredLocale,
     counts: { channels: guild.channels.cache.size, text: guild.channels.cache.filter((c) => c.type === ChannelType.GuildText).size, voice: guild.channels.cache.filter((c) => c.type === ChannelType.GuildVoice).size, roles: guild.roles.cache.size, emojis: guild.emojis.cache.size, bots: guild.members.cache.filter((m) => m.user.bot).size, online: guild.members.cache.filter((m) => m.presence && m.presence.status !== 'offline').size },
     channels: channelList(guild), roles: roleList(guild), prefix: ctx.getPrefix(guild.id),
-    botPermissions: guild.members.me?.permissions.toArray() || [],
+    botPermissions: guild.members.me?.permissions?.toArray?.() || [],
   };
 }
 function inviteUrl() {

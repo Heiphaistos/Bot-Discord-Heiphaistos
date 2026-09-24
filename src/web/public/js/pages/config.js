@@ -40,9 +40,9 @@ export default async function configPage(ctx) {
       if (!exp || typeof exp !== 'object' || (!exp.modules && !exp.settings)) throw new Error('Le fichier ne contient ni « modules » ni « settings »');
       pending = exp;
       importBtn.disabled = false;
-      preview.replaceChildren(h('div', { class: 'callout callout-info' }, icon('file', 16), `Source : ${source}`),
+      preview.replaceChildren(...[h('div', { class: 'callout callout-info' }, icon('file', 16), `Source : ${source}`),
         exp.guildId && exp.guildId !== gid ? h('div', { class: 'callout callout-warn' }, icon('alert', 16), `Cet export provient d'un autre serveur (${exp.guildId}). Les IDs de salons et de rôles ne correspondront probablement pas.`) : null,
-        summary(exp));
+        summary(exp)].filter(Boolean));
     } catch (err) {
       pending = null; importBtn.disabled = true;
       preview.replaceChildren(h('div', { class: 'callout callout-danger' }, icon('alert', 16), `JSON invalide : ${err.message}`));

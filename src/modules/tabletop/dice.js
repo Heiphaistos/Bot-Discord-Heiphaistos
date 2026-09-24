@@ -293,7 +293,7 @@ export function preprocess(input) {
   if (hash >= 0) { label = src.slice(hash + 1).trim() || null; src = src.slice(0, hash).trim(); }
   src = src.toLowerCase().replace(/,/g, '.');
   let repeat = 1;
-  let m = src.match(/\s*(?:^|\s)x\s*(\d+)\s*$/) || src.match(/\s*x(\d+)\s*$/);
+  let m = src.match(/(?:^|\s)x\s*(\d+)\s*$/) || src.match(/(?<![a-z])x(\d+)\s*$/);
   if (m) { repeat = Number(m[1]); src = src.slice(0, m.index).trim(); }
   else if ((m = src.match(/^(\d+)\s*x\s+/))) { repeat = Number(m[1]); src = src.slice(m[0].length).trim(); }
   if (repeat < 1 || repeat > LIMITS.maxRepeat) throw new DiceError(`Répétitions entre 1 et ${LIMITS.maxRepeat}`);

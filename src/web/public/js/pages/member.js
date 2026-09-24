@@ -3,7 +3,7 @@ import { h, fmtDate, fmtRelative, permLabel } from '../utils.js';
 import { icon } from '../icons.js';
 import { api } from '../api.js';
 import { getRoles, loadCatalog, getGuildModules, isModuleEnabled, getActionDesc, rememberMembers } from '../state.js';
-import { pageHeader, card, avatar, badge, emptyState, skeleton, kvList, idChip, button } from '../components/ui.js';
+import { card, avatar, badge, emptyState, skeleton, kvList, idChip, button } from '../components/ui.js';
 import { openActionModal } from '../components/action.js';
 import { roleChips } from './members.js';
 
@@ -37,7 +37,7 @@ export default async function memberPage(ctx) {
   const quick = modOn ? QUICK.filter(([a]) => getActionDesc('moderation', a)).filter(([a]) => a !== 'untimeout' || timedOut) : [];
 
   ctx.el.replaceChildren(
-    pageHeader({ title: '', back: { href: `#/g/${gid}/members`, label: 'Membres' } }),
+    h('a', { class: 'back-link', href: `#/g/${gid}/members` }, icon('chevronLeft', 16), 'Membres'),
     h('div', { class: 'member-hero card' },
       avatar(m.avatar, m.displayName, 80),
       h('div', { class: 'member-hero-main' },

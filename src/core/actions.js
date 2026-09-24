@@ -248,6 +248,6 @@ export function describeAction(mod, name, action) {
     guildOnly: action.guildOnly !== false,
     hidden: !!action.hidden,
     category: action.category || mod.category || 'general',
-    params: Object.fromEntries(Object.entries(action.params || {}).map(([k, d]) => [k, { type: d.type || 'string', label: d.label || k, description: d.description || '', required: !!d.required, default: d.default, choices: d.choices, min: d.min, max: d.max, channelTypes: d.channelTypes, multiline: d.type === 'text' }])),
+    params: Object.fromEntries(Object.entries(action.params || {}).map(([k, d]) => [k, { type: d.type || 'string', label: d.label || k, description: d.description || '', required: !!d.required, default: d.default, choices: d.choices, min: d.min, max: d.max, channelTypes: d.channelTypes, itemType: d.itemType || null, multiline: d.type === 'text' }])),
   };
 }
