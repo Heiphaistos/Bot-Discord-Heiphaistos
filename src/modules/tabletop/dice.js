@@ -268,8 +268,8 @@ function rollDice(node, state) {
     const shown = parts.length > 60 ? [...parts.slice(0, 60), `…(+${parts.length - 60})`] : parts;
     text = `${label} [${shown.join(', ')}]${success ? ` = ${successes} succès` : ''}`;
   }
-  const naturals = node.count === 1 && !node.fate && dice.length >= 1 ? dice[0].v : null;
-  return { value, text, successes, natural: node.sides === 20 && node.count <= 2 ? kept[0]?.v ?? naturals : null };
+  if (!node.fate && node.sides === 20) state.naturals = kept.map((d) => d.v);
+  return { value, text, successes };
 }
 
 function modLabel(m) {
@@ -321,7 +321,7 @@ export function roll(input, { rng = Math.random } = {}) {
     const state = { rng, detail: true, diceRolled: 0 };
     const r = evaluate(ast, state);
     let crit = null;
-    if (hasSingleD20(ast)) { const nat = findNatural(ast, r); if (nat === 20) crit = 'success'; else if (nat === 1) crit = 'fail'; }
+    if (hasSingleD20(ast) && state.naturals?.length === 1) { const nat = state.naturals[0]; if (nat === 20) crit = 'success'; else if (nat === 1) crit = 'fail'; }
     rolls.push({ total: r.value, text: r.text, compare: r.compare || null, successes: r.successes ?? null, crit });
   }
   return { expression: pre.src, label: pre.label, mode: pre.mode, repeat: pre.repeat, rolls };
@@ -336,17 +336,6 @@ function hasSingleD20(ast) {
   })(ast);
   return n === 1 && ok;
 }
-function findNatural(ast, r) {
-  // natural value is the kept d20 of the single dice node: re-evaluate from text is fragile, so we parse from the text
-  const m = r.text?.match(/d20[^[]*\[([^\]]*)\]/);
-  if (!m) return null;
-  const kept = m[1].split(',').map((s) => s.trim()).filter((s) => !s.startsWith('~~') && !s.includes('→~~')).map((s) => {
-    const last = s.split('→').pop();
-    return Number(last.replace(/[^\d]/g, ''));
-  }).filter((v) => Number.isFinite(v));
-  return kept.length === 1 ? kept[0] : null;
-}
-
 /** Monte-Carlo statistics of an expression. */
 export function stats(input, { samples = 20000, rng = Math.random } = {}) {
   const pre = preprocess(input);

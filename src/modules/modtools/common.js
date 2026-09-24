@@ -71,3 +71,18 @@ export async function runModeration(ctx, guild, actor, action, params, { skipPer
   if (!ctx.modules.has('moderation')) throw new ActionError('Le module moderation est requis pour cette opération');
   return ctx.actions.run({ module: 'moderation', action, guildId: guild.id, actor, params, skipPermissions, audit: false });
 }
+
+/** Crée un cas de modération (ctx.modCase du noyau, repli sur createCase du module moderation). */
+export async function recordCase(ctx, guild, data) {
+  try {
+    if (typeof ctx.modCase === 'function') {
+      const row = await ctx.modCase(guild, data);
+      if (row) return row;
+    }
+    if (ctx.modules.has('moderation')) {
+      const { createCase } = await import('../moderation/index.js');
+      return await createCase(ctx, guild, data);
+    }
+  } catch (err) { ctx.log(MODULE).warn({ err }, 'Création du cas de modération impossible'); }
+  return null;
+}

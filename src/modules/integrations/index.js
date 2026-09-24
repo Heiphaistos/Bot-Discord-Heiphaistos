@@ -279,7 +279,7 @@ export default {
   actions: {
     /* ---------------- /fetch ---------------- */
     fetch: {
-      description: 'Récupérer une URL (JSON/XML/texte) et extraire une valeur', slash: { name: 'fetch' }, permissions: [], cooldown: 5, audit: false,
+      description: 'Récupérer une URL (JSON/XML/texte) et extraire une valeur', slash: { group: 'integration', subgroup: 'fetch', name: 'get' }, permissions: [], cooldown: 5, audit: false,
       params: {
         url: { type: 'string', required: true, description: 'URL http(s) à récupérer', maxLength: 2000 },
         chemin: { type: 'string', description: 'Chemin à extraire (ex : data.items[0].name)', maxLength: 300 },

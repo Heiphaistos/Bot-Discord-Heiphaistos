@@ -316,7 +316,7 @@ export default {
 
   actions: {
     ask: {
-      description: 'Poser une question à l\'IA (image optionnelle)', slash: { name: 'ask' }, permissions: [], audit: false,
+      description: 'Poser une question à l\'IA (image optionnelle)', slash: { group: 'ai', name: 'ask' }, permissions: [], audit: false,
       params: {
         question: { type: 'text', required: true, description: 'Votre question', maxLength: 4000 },
         image: { type: 'string', description: 'URL d\'une image à analyser', maxLength: 2000 },

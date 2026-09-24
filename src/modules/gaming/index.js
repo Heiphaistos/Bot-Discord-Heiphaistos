@@ -467,7 +467,7 @@ export default {
 
     /* ================= FiveM ================= */
     fivem_status: {
-      description: 'Statut d\'un serveur FiveM', slash: { group: 'fivem', name: 'status' }, permissions: [], cooldown: 5, audit: false,
+      description: 'Statut d\'un serveur FiveM', slash: { group: 'gaming', subgroup: 'fivem', name: 'status' }, permissions: [], cooldown: 5, audit: false,
       params: { serveur: { type: 'string', description: 'hôte:port ou code cfx.re (défaut : paramètre fivemDefault)', maxLength: 255 } },
       async run(ctx, { guild, actor, params }) {
         const target = fivemTarget(ctx, guild, params.serveur);
@@ -476,7 +476,7 @@ export default {
       },
     },
     fivem_players: {
-      description: 'Joueurs connectés sur un serveur FiveM', slash: { group: 'fivem', name: 'players' }, permissions: [], cooldown: 5, audit: false,
+      description: 'Joueurs connectés sur un serveur FiveM', slash: { group: 'gaming', subgroup: 'fivem', name: 'players' }, permissions: [], cooldown: 5, audit: false,
       params: { serveur: { type: 'string', description: 'hôte:port ou code cfx.re', maxLength: 255 } },
       async run(ctx, { guild, actor, params }) {
         const target = fivemTarget(ctx, guild, params.serveur);
@@ -487,7 +487,7 @@ export default {
       },
     },
     fivem_monitor: {
-      description: 'Afficher un statut FiveM mis à jour toutes les 2 minutes', slash: { group: 'fivem', name: 'monitor' }, permissions: ['ManageGuild'], ephemeral: true,
+      description: 'Afficher un statut FiveM mis à jour toutes les 2 minutes', slash: { group: 'gaming', subgroup: 'fivem', name: 'monitor' }, permissions: ['ManageGuild'], ephemeral: true,
       params: { salon: { type: 'channel', required: true, description: 'Salon du moniteur', channelTypes: ['GuildText', 'GuildAnnouncement'] }, serveur: { type: 'string', description: 'hôte:port ou code cfx.re (défaut : fivemDefault)', maxLength: 255 } },
       async run(ctx, { guild, actor, params }) {
         const target = fivemTarget(ctx, guild, params.serveur);
@@ -496,7 +496,7 @@ export default {
       },
     },
     fivem_unmonitor: {
-      description: 'Supprimer un moniteur FiveM', slash: { group: 'fivem', name: 'unmonitor' }, permissions: ['ManageGuild'], ephemeral: true,
+      description: 'Supprimer un moniteur FiveM', slash: { group: 'gaming', subgroup: 'fivem', name: 'unmonitor' }, permissions: ['ManageGuild'], ephemeral: true,
       params: { id: { type: 'integer', required: true, min: 1, description: 'ID du moniteur' } },
       run: removeMonitorAction('fivem'),
     },
@@ -629,7 +629,7 @@ export default {
 
     /* ================= LFG ================= */
     lfg_create: {
-      description: 'Créer une recherche de groupe (LFG)', slash: { group: 'lfg', name: 'create' }, permissions: [], cooldown: 30,
+      description: 'Créer une recherche de groupe (LFG)', slash: { group: 'gaming', subgroup: 'lfg', name: 'create' }, permissions: [], cooldown: 30,
       params: {
         jeu: { type: 'string', required: true, description: 'Jeu', maxLength: 80, autocomplete: lfgGameAutocomplete },
         places: { type: 'integer', required: true, min: 2, max: 40, description: 'Taille du groupe (vous inclus)' },
@@ -667,7 +667,7 @@ export default {
       },
     },
     lfg_join: {
-      description: 'Rejoindre un groupe LFG', slash: { group: 'lfg', name: 'join' }, permissions: [], ephemeral: true,
+      description: 'Rejoindre un groupe LFG', slash: { group: 'gaming', subgroup: 'lfg', name: 'join' }, permissions: [], ephemeral: true,
       params: { id: { type: 'integer', required: true, min: 1, description: 'ID du groupe' } },
       async run(ctx, { guild, actor, params }) {
         const row = await lfgJoin(ctx, guild, params.id, actor.id);
@@ -675,7 +675,7 @@ export default {
       },
     },
     lfg_leave: {
-      description: 'Quitter un groupe LFG', slash: { group: 'lfg', name: 'leave' }, permissions: [], ephemeral: true,
+      description: 'Quitter un groupe LFG', slash: { group: 'gaming', subgroup: 'lfg', name: 'leave' }, permissions: [], ephemeral: true,
       params: { id: { type: 'integer', required: true, min: 1, description: 'ID du groupe' } },
       async run(ctx, { guild, actor, params }) {
         const row = await lfgLeave(ctx, guild, params.id, actor.id);
@@ -683,7 +683,7 @@ export default {
       },
     },
     lfg_list: {
-      description: 'Groupes LFG ouverts', slash: { group: 'lfg', name: 'list' }, permissions: [], audit: false,
+      description: 'Groupes LFG ouverts', slash: { group: 'gaming', subgroup: 'lfg', name: 'list' }, permissions: [], audit: false,
       params: { jeu: { type: 'string', description: 'Filtrer par jeu', maxLength: 80, autocomplete: lfgGameAutocomplete } },
       async run(ctx, { guild, params }) {
         const rows = ctx.db.prepare("SELECT * FROM gm_lfg WHERE guild_id = ? AND status != 'closed' ORDER BY id DESC LIMIT 25").all(guild.id)
@@ -693,7 +693,7 @@ export default {
       },
     },
     lfg_close: {
-      description: 'Fermer un groupe LFG (organisateur ou modérateur)', slash: { group: 'lfg', name: 'close' }, permissions: [], ephemeral: true,
+      description: 'Fermer un groupe LFG (organisateur ou modérateur)', slash: { group: 'gaming', subgroup: 'lfg', name: 'close' }, permissions: [], ephemeral: true,
       params: { id: { type: 'integer', required: true, min: 1, description: 'ID du groupe' } },
       async run(ctx, { guild, actor, params }) {
         const row = lfgRow(ctx, guild.id, params.id);
@@ -704,7 +704,7 @@ export default {
       },
     },
     lfg_kick: {
-      description: 'Retirer un membre d\'un groupe LFG', slash: { group: 'lfg', name: 'kick' }, permissions: [], ephemeral: true,
+      description: 'Retirer un membre d\'un groupe LFG', slash: { group: 'gaming', subgroup: 'lfg', name: 'kick' }, permissions: [], ephemeral: true,
       params: { id: { type: 'integer', required: true, min: 1, description: 'ID du groupe' }, membre: { type: 'user', required: true, description: 'Membre à retirer' } },
       async run(ctx, { guild, actor, params }) {
         const row = lfgRow(ctx, guild.id, params.id);
