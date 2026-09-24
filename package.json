@@ -15,7 +15,8 @@
     "dev": "node --watch src/index.js",
     "check": "node src/scripts/check.js",
     "deploy-commands": "node src/scripts/deploy-commands.js",
-    "cli": "node src/cli/heiphais.js"
+    "cli": "node src/cli/heiphais.js",
+    "docs": "node src/scripts/docs.js"
   },
   "dependencies": {
     "@discordjs/voice": "^0.19.0",
