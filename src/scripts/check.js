@@ -35,10 +35,19 @@ installInteractionHandler(ctx);
 await installModules(ctx);
 ok('Migrations et évènements installés');
 
-// Slash command JSON validation
+// Slash command JSON validation (Discord : somme des name/description/choices ≤ 8000 caractères par commande)
+function commandTextSize(obj) {
+  if (!obj || typeof obj !== 'object') return 0;
+  let n = 0;
+  for (const [k, v] of Object.entries(obj)) {
+    if (typeof v === 'string' && ['name', 'description', 'value'].includes(k)) n += v.length;
+    else if (typeof v === 'object') n += commandTextSize(v);
+  }
+  return n;
+}
 let cmdCount = 0;
 for (const b of ctx.slash.builders) {
-  try { const j = b.toJSON(); cmdCount++; if (JSON.stringify(j).length > 8000) fail(`/${b.name}: JSON trop volumineux`); } catch (err) { fail(`/${b.name}: ${err.message}`); }
+  try { const j = b.toJSON(); cmdCount++; const size = commandTextSize(j); if (size > 8000) fail(`/${b.name}: ${size} caractères (limite Discord 8000) — raccourcissez descriptions/choix ou scindez le groupe`); } catch (err) { fail(`/${b.name}: ${err.message}`); }
 }
 ok(`${cmdCount} commandes slash valides (${ctx.actions.list().length} actions)`);
 if (cmdCount > 100) fail(`Trop de commandes slash top-level (${cmdCount} > 100) — regroupez avec slash.group`);

@@ -1,0 +1,21 @@
+[Unit]
+Description=HeiphaisBot - bot Discord tout-en-un
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=heiphaisbot
+Group=heiphaisbot
+WorkingDirectory=/opt/heiphaisbot
+EnvironmentFile=/opt/heiphaisbot/.env
+ExecStart=/usr/bin/node src/index.js
+Restart=always
+RestartSec=5
+# Redémarrage demandé par le panel/CLI (process.exit(0)) → relancé grâce à Restart=always
+SuccessExitStatus=0
+LimitNOFILE=65536
+NoNewPrivileges=false
+
+[Install]
+WantedBy=multi-user.target

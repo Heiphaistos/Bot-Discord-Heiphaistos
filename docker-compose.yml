@@ -1,0 +1,15 @@
+services:
+  heiphaisbot:
+    build: .
+    container_name: heiphaisbot
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      - PANEL_HOST=0.0.0.0
+      - DATA_DIR=/app/data
+    ports:
+      - "${PANEL_PORT:-3000}:${PANEL_PORT:-3000}"
+    volumes:
+      - ./data:/app/data
+      # Décommentez pour piloter Docker de l'hôte depuis le bot (module sysadmin) :
+      # - /var/run/docker.sock:/var/run/docker.sock

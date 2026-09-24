@@ -40,6 +40,8 @@ export async function startWebServer(ctx, { listen = true } = {}) {
     return reply.sendFile('index.html');
   });
 
+  app.get('/health', async () => ({ ok: true, ready: client.isReady(), uptime: Date.now() - ctx.startedAt }));
+
   // ---- Auth routes ----
   app.get('/auth/login', async (request, reply) => {
     if (!config.discord.clientId || !config.discord.clientSecret) throw new ActionError('OAuth2 non configuré (DISCORD_CLIENT_ID / DISCORD_CLIENT_SECRET)', 'OAUTH_DISABLED', 500);
@@ -100,6 +102,14 @@ export async function startWebServer(ctx, { listen = true } = {}) {
     api.get('/actions', async () => ({ ok: true, actions: ctx.actions.list() }));
 
     api.get('/guilds', async (request) => ({ ok: true, guilds: (await auth.accessibleGuilds(request.auth)).map(slimGuild) }));
+    // Actions sans serveur (guildOnly: false), ex: admin.ping, admin.botinfo
+    api.post('/actions/:module/:action', async (request) => {
+      const found = ctx.actions.get(request.params.module, request.params.action);
+      if (!found) throw new ActionError('Action inconnue', 'NOT_FOUND', 404);
+      if (found.action.guildOnly !== false) throw new ActionError('Cette action nécessite un serveur : utilisez /api/guilds/:guildId/actions/…', 'GUILD_ONLY', 400);
+      const result = await ctx.actions.run({ module: request.params.module, action: request.params.action, guildId: null, actor: actorOf(request), params: request.body?.params || request.body || {} });
+      return serializeResult(result);
+    });
 
     // ---- Owner / system ----
     api.get('/system/logs', async (request) => { requireOwner(request); const limit = Math.min(Number(request.query.limit) || 200, 500); return { ok: true, logs: logRing.slice(-limit) }; });
