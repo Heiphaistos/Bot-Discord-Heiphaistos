@@ -271,9 +271,9 @@ export async function onTicketClose(ctx, payload) {
   const s = ctx.settings.get(guild.id, 'integrations');
   if (!s.autoArchiveTickets || !forgeArchiveConfig(ctx, guild.id).url) return;
   const ticket = payload.ticket || {};
-  const ticketId = ticket.id ?? ticket.number ?? payload.ticketId ?? payload.number ?? null;
+  const ticketId = ticket.number ?? ticket.id ?? payload.ticketId ?? payload.number ?? null;
   const channelId = payload.channelId || ticket.channel_id || ticket.channelId || null;
-  const extraMeta = { ticketId: ticketId !== null ? String(ticketId) : null, ticketOwnerId: ticket.user_id || ticket.userId || payload.userId || null, closedBy: payload.closedBy?.id || payload.closedBy || payload.actor?.id || null, reason: payload.reason || ticket.close_reason || null };
+  const extraMeta = { ticketId: ticketId !== null ? String(ticketId) : null, ticketOwnerId: ticket.user_id || ticket.userId || payload.userId || null, closedBy: payload.closedBy?.id || payload.closedBy || payload.actor?.id || ticket.closed_by || null, reason: payload.reason || ticket.close_reason || null };
   let html = null;
   for (const c of [payload.transcriptHtml, payload.html, typeof payload.transcript === 'string' ? payload.transcript : null, ticket.transcript_html]) if (typeof c === 'string' && c.includes('<')) { html = Buffer.from(c); break; }
   if (!html) for (const p of [payload.transcriptPath, payload.transcriptFile, payload.file, payload.path, ticket.transcript_path]) { html = readIfFile(p); if (html) break; }

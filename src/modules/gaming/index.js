@@ -649,12 +649,18 @@ export default {
         const duration = params.duree || parseDuration(s.lfgDefaultDuration) || 2 * 3600000;
         const row = { guild_id: guild.id, channel_id: target.id, owner_id: actor.id, game: params.jeu.trim(), slots: params.places, description: params.description || null, role_id: params.role || null, members: [actor.id], status: 'open', expires_at: Date.now() + Math.min(duration, 7 * 86400000), created_at: Date.now() };
         const member = await ctx.resolve.member(guild, actor.id);
+        let pingRole = false;
+        if (row.role_id) {
+          const role = ctx.resolve.role(guild, row.role_id);
+          if (!role || role.id === guild.id || role.managed) throw new ActionError('Rôle requis invalide');
+          pingRole = role.mentionable || !!actor.isOwner || !!member?.permissions?.has('MentionEveryone');
+        }
         const missing = requiredRoles(ctx, guild, row).filter((r) => !member?.roles?.cache?.has(r));
         if (missing.length && !actor.isOwner) throw new ActionError(`Rôle requis pour ce jeu : ${missing.map((r) => `<@&${r}>`).join(', ')}`);
         const info = ctx.db.prepare('INSERT INTO gm_lfg (guild_id, channel_id, owner_id, game, slots, description, role_id, members, status, expires_at, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
           .run(row.guild_id, row.channel_id, row.owner_id, row.game, row.slots, row.description, row.role_id, JSON.stringify(row.members), row.status, row.expires_at, row.created_at);
         row.id = Number(info.lastInsertRowid);
-        const msg = await target.send({ content: row.role_id ? `<@&${row.role_id}>` : undefined, embeds: [lfgEmbed(row)], components: lfgComponents(row), allowedMentions: { roles: row.role_id ? [row.role_id] : [] } });
+        const msg = await target.send({ content: pingRole ? `<@&${row.role_id}>` : undefined, embeds: [lfgEmbed(row)], components: lfgComponents(row), allowedMentions: { parse: [], roles: pingRole ? [row.role_id] : [] } });
         ctx.db.prepare('UPDATE gm_lfg SET message_id = ? WHERE id = ?').run(msg.id, row.id);
         ctx.scheduler.schedule({ guildId: guild.id, module: MODULE, type: 'lfg_expire', runAt: row.expires_at, payload: { lfgId: row.id } });
         return { message: `Groupe LFG #${row.id} publié dans <#${target.id}> : ${msg.url}`, data: { id: row.id, messageId: msg.id, channelId: target.id, expiresAt: row.expires_at } };

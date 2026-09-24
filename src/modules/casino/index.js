@@ -466,7 +466,7 @@ export default {
   actions: {
     // ------------------------------------------------------------ blackjack
     blackjack: {
-      description: 'Jouer au blackjack contre le croupier (boutons Tirer / Rester / Doubler / Split)',
+      description: 'Jouer au blackjack contre le croupier (boutons Tirer / Rester / Doubler / Split)', slash: { group: 'casino', name: 'blackjack' },
       permissions: [], audit: false,
       params: {
         mise: { type: 'integer', description: 'Montant misé (pour une nouvelle partie)', min: 1 },
@@ -496,7 +496,7 @@ export default {
 
     // ------------------------------------------------------------ roulette
     roulette: {
-      description: 'Roulette européenne : rouge/noir, pair/impair, manque/passe, douzaine, colonne ou numéro',
+      description: 'Roulette européenne : rouge/noir, pair/impair, manque/passe, douzaine, colonne ou numéro', slash: { group: 'casino', name: 'roulette' },
       permissions: [], audit: false,
       params: {
         mise: { type: 'integer', required: true, description: 'Montant misé', min: 1 },
@@ -541,7 +541,7 @@ export default {
 
     // ------------------------------------------------------------ machine à sous
     slots: {
-      description: 'Machine à sous 3x3 (5 lignes) avec jackpot progressif',
+      description: 'Machine à sous 3x3 (5 lignes) avec jackpot progressif', slash: { group: 'casino', name: 'slots' },
       permissions: [], audit: false,
       params: { mise: { type: 'integer', required: true, description: 'Montant misé (réparti sur les 5 lignes)', min: 1 } },
       async run(ctx, { guild, actor, params, interaction, channel }) {

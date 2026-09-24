@@ -268,7 +268,7 @@ export const PET_SPECIES = {
 };
 export const PET_STAGES = [
   { name: 'Œuf', xp: 0, ageDays: 0 },
-  { name: 'Bébé', xp: 10, ageDays: 0 },
+  { name: 'Bébé', xp: 3, ageDays: 0 },
   { name: 'Jeune', xp: 60, ageDays: 1 },
   { name: 'Adulte', xp: 200, ageDays: 3 },
   { name: 'Légendaire', xp: 500, ageDays: 7 },

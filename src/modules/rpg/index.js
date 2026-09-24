@@ -733,7 +733,7 @@ export default {
         const target = params.adversaire;
         if (target === actor.id) throw new ActionError('Vous ne pouvez pas vous défier vous-même');
         const tUser = await ctx.resolve.user(target);
-        if (!tUser || tUser.bot) throw new ActionError('Adversaire invalide');
+        if (tUser?.bot) throw new ActionError('Impossible de défier un bot');
         requireChar(ctx, guild.id, actor.id);
         requireChar(ctx, guild.id, target, false);
         if (findUserFight(guild.id, actor.id) || findUserFight(guild.id, target)) throw new ActionError('L\'un des joueurs est déjà en combat');
