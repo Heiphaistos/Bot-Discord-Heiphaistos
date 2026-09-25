@@ -30,7 +30,7 @@ function parseStats(text) {
   const out = {};
   if (!text) return out;
   for (const m of String(text).toUpperCase().matchAll(/([A-ZÉ]{3,12})\s*[=:]?\s*(-?\d{1,2})/g)) {
-    const key = ABILITY_ALIASES[m[1].normalize('NFD').replace(/[̀-ͯ]/g, '')] || m[1];
+    const key = ABILITY_ALIASES[m[1].normalize('NFD').replace(/[\u0300-\u036f]/g, '')] || m[1];
     if (ABILITIES.includes(key)) out[key] = Math.max(1, Math.min(30, Number(m[2])));
   }
   return out;
@@ -48,7 +48,7 @@ function findCharacter(ctx, guildId, userId, name) {
 function characterEmbed(c) {
   const statLine = ABILITIES.map((a) => `**${a}** ${c.stats[a] ?? 10} (${signed(abilityMod(c.stats[a] ?? 10))})`).join(' • ');
   return embed({ title: `🧙 ${c.name}`, description: `${c.class || 'Aventurier'} — niveau ${c.level}\nJoueur : <@${c.user_id}>`, color: COLORS.info, fields: [
-    { name: 'Points de vie', value: `❤️ ${c.hp}/${c.hp_max}`, inline: true },
+    { name: 'Points de vie', value: `❤\ufe0f ${c.hp}/${c.hp_max}`, inline: true },
     { name: 'Maîtrise', value: signed(2 + Math.floor((c.level - 1) / 4)), inline: true },
     { name: 'Caractéristiques', value: statLine },
     ...(c.notes ? [{ name: 'Notes', value: truncate(c.notes, 1024) }] : []),
@@ -239,7 +239,7 @@ export default {
       params: { environnement: { type: 'choice', description: 'Environnement', choices: ENVIRONMENTS } },
       async run(ctx, { params }) {
         const e = generateEncounter(params.environnement);
-        return { embed: embed({ title: `⚔️ Rencontre — ${e.label}`, description: `Vous tombez sur **${e.creature}** (${e.number > 1 ? `${e.number} individus` : 'seul'}), d'humeur **${e.disposition}**.\nÀ proximité : ${e.event}.`, fields: [{ name: 'Difficulté', value: e.difficulty }], color: 0xe67e22 }), data: e };
+        return { embed: embed({ title: `⚔\ufe0f Rencontre — ${e.label}`, description: `Vous tombez sur **${e.creature}** (${e.number > 1 ? `${e.number} individus` : 'seul'}), d'humeur **${e.disposition}**.\nÀ proximité : ${e.event}.`, fields: [{ name: 'Difficulté', value: e.difficulty }], color: 0xe67e22 }), data: e };
       },
     },
     weather: {
@@ -248,7 +248,7 @@ export default {
       async run(ctx, { params }) {
         const w = generateWeather(params.saison);
         const label = SEASONS.find((s) => s.value === w.season)?.name;
-        return { embed: embed({ title: `${w.sky} — ${label}`, description: `🌡️ ${w.temperature} °C • 💨 ${w.wind} km/h\n${w.effect}`, color: 0x3498db }), data: w };
+        return { embed: embed({ title: `${w.sky} — ${label}`, description: `🌡\ufe0f ${w.temperature} °C • 💨 ${w.wind} km/h\n${w.effect}`, color: 0x3498db }), data: w };
       },
     },
     tavern: {
@@ -385,7 +385,7 @@ export default {
         ctx.db.prepare('INSERT INTO tt_init_state (guild_id, channel_id, turn, round) VALUES (?, ?, ?, ?) ON CONFLICT(guild_id, channel_id) DO UPDATE SET turn = excluded.turn, round = excluded.round').run(guild.id, channelId, turn, round);
         const cur = list[turn];
         const view = initiativeView(ctx, guild.id, channelId);
-        return { ...view, content: cur.user_id ? `▶️ À toi de jouer, <@${cur.user_id}> (**${cur.name}**) !` : `▶️ Au tour de **${cur.name}** !`, allowedMentions: { users: cur.user_id ? [cur.user_id] : [] } };
+        return { ...view, content: cur.user_id ? `▶\ufe0f À toi de jouer, <@${cur.user_id}> (**${cur.name}**) !` : `▶\ufe0f Au tour de **${cur.name}** !`, allowedMentions: { users: cur.user_id ? [cur.user_id] : [] } };
       },
     },
     initiative_remove: {
@@ -478,7 +478,7 @@ export default {
       params: { joueur: { type: 'user', description: 'Joueur (vide = tout le serveur)' } },
       async run(ctx, { guild, params }) {
         const rows = ctx.db.prepare('SELECT * FROM tt_characters WHERE guild_id = ? AND (? IS NULL OR user_id = ?) ORDER BY updated_at DESC LIMIT 50').all(guild.id, params.joueur, params.joueur).map(charRow);
-        return { embed: infoEmbed(rows.map((c) => `• **${c.name}** — ${c.class || 'Aventurier'} niv. ${c.level} (❤️ ${c.hp}/${c.hp_max}) — <@${c.user_id}>`).join('\n') || 'Aucune fiche.', '🧙 Personnages'), data: rows };
+        return { embed: infoEmbed(rows.map((c) => `• **${c.name}** — ${c.class || 'Aventurier'} niv. ${c.level} (❤\ufe0f ${c.hp}/${c.hp_max}) — <@${c.user_id}>`).join('\n') || 'Aucune fiche.', '🧙 Personnages'), data: rows };
       },
     },
     character_delete: {
@@ -532,6 +532,6 @@ function initiativeView(ctx, guildId, channelId) {
   const list = initiativeOrder(ctx, guildId, channelId);
   const st = initState(ctx, guildId, channelId);
   const turn = Math.min(st.turn, Math.max(0, list.length - 1));
-  const lines = list.map((r, i) => `${i === turn ? '▶️' : '▫️'} \`${String(r.initiative).padStart(3)}\` **${r.name}**${r.user_id ? ` — <@${r.user_id}>` : ''}`);
-  return { embed: embed({ title: `⚔️ Initiative — round ${st.round}`, description: lines.join('\n') || 'Aucun combattant. Ajoutez-en avec `/roll initiative add`.', color: COLORS.info }), data: { round: st.round, turn, order: list } };
+  const lines = list.map((r, i) => `${i === turn ? '▶\ufe0f' : '▫\ufe0f'} \`${String(r.initiative).padStart(3)}\` **${r.name}**${r.user_id ? ` — <@${r.user_id}>` : ''}`);
+  return { embed: embed({ title: `⚔\ufe0f Initiative — round ${st.round}`, description: lines.join('\n') || 'Aucun combattant. Ajoutez-en avec `/roll initiative add`.', color: COLORS.info }), data: { round: st.round, turn, order: list } };
 }

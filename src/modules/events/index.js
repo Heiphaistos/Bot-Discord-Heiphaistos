@@ -7,7 +7,7 @@ import { parseDateInput, nextCron, parseCron, formatInTz, isValidTimezone, tzPar
 import { buildIcs } from './ics.js';
 import { renderMonth, MONTH_NAMES } from './calendar.js';
 
-const STATUS_LABELS = { 1: '🗓️ Programmé', 2: '🟢 En cours', 3: '✅ Terminé', 4: '❌ Annulé' };
+const STATUS_LABELS = { 1: '🗓\ufe0f Programmé', 2: '🟢 En cours', 3: '✅ Terminé', 4: '❌ Annulé' };
 const RSVP_LABELS = { yes: '✅ Participe', maybe: '🤔 Peut-être', no: '❌ Ne participe pas' };
 const DAY = 86400000;
 const MANAGE = ['ManageEvents'];
@@ -323,7 +323,7 @@ function parseMonth(input, tz) {
   if ((m = s.match(/^(\d{4})-(\d{1,2})$/))) return check(Number(m[1]), Number(m[2]));
   if ((m = s.match(/^(\d{1,2})[/.-](\d{4})$/))) return check(Number(m[2]), Number(m[1]));
   if ((m = s.match(/^(\d{1,2})$/))) return check(Number(m[1]) < now.m ? now.y + 1 : now.y, Number(m[1]));
-  const idx = MONTH_NAMES.findIndex((n) => n.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').startsWith(s.normalize('NFD').replace(/[̀-ͯ]/g, '').slice(0, 4)));
+  const idx = MONTH_NAMES.findIndex((n) => n.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').startsWith(s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').slice(0, 4)));
   if (idx >= 0) return check(idx + 1 < now.m ? now.y + 1 : now.y, idx + 1);
   throw new ActionError('Mois invalide (ex: 2026-10, 10/2026, octobre)');
   function check(year, month) { if (month < 1 || month > 12 || year < 2000 || year > 2100) throw new ActionError('Mois invalide'); return { year, month }; }
@@ -619,7 +619,7 @@ export default {
           const am = actor.member?.roles ? actor.member : null;
           if (am && am.id !== guild.ownerId && !actor.isOwner && role.position >= am.roles.highest.position) throw new ActionError('Vous ne pouvez pas attribuer un rôle supérieur ou égal au vôtre');
         } else {
-          role = await guild.roles.create({ name: truncate(`🎟️ ${ev.name}`, 100), mentionable: true, reason: `Rôle de l'évènement ${ev.id}` }).catch((err) => { throw new ActionError(`Création du rôle impossible : ${err.message}`); });
+          role = await guild.roles.create({ name: truncate(`🎟\ufe0f ${ev.name}`, 100), mentionable: true, reason: `Rôle de l'évènement ${ev.id}` }).catch((err) => { throw new ActionError(`Création du rôle impossible : ${err.message}`); });
           created = 1;
         }
         ctx.db.prepare('INSERT INTO ev_roles (guild_id, event_id, role_id, created, created_at) VALUES (?, ?, ?, ?, ?)').run(guild.id, ev.id, role.id, created, Date.now());
@@ -666,7 +666,7 @@ export default {
         const icon = { discord: '📅', rsvp: '📌', recurring: '🔁' };
         const lines = list.map((e) => `${icon[e.kind]} ${formatInTz(e.start, tz, { weekday: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })} — **${truncate(e.name, 60)}**${e.kind === 'rsvp' ? ` (\`${e.id}\`)` : ''}`);
         const png = await renderMonth({ year, month, tz, events: list, title: `${guild.name} • ${list.length} évènement(s) • 📅 Discord  📌 RSVP  🔁 récurrent prévu` });
-        const e = embed({ title: `🗓️ ${MONTH_NAMES[month - 1]} ${year}`, description: truncate(lines.join('\n') || 'Aucun évènement ce mois-ci.', 4000), image: png ? 'attachment://calendrier.png' : undefined, color: COLORS.info, footer: `Fuseau : ${tz}` });
+        const e = embed({ title: `🗓\ufe0f ${MONTH_NAMES[month - 1]} ${year}`, description: truncate(lines.join('\n') || 'Aucun évènement ce mois-ci.', 4000), image: png ? 'attachment://calendrier.png' : undefined, color: COLORS.info, footer: `Fuseau : ${tz}` });
         return { embed: e, files: png ? [{ attachment: png, name: 'calendrier.png' }] : undefined, data: { year, month, events: list } };
       },
     },
@@ -747,7 +747,7 @@ export default {
       description: 'Lister les évènements récurrents', slash: { group: 'events', subgroup: 'recurring', name: 'list' }, permissions: [], audit: false,
       async run(ctx, { guild }) {
         const rows = ctx.db.prepare('SELECT * FROM ev_recurring WHERE guild_id = ? ORDER BY id').all(guild.id);
-        return { embed: infoEmbed(rows.map((r) => `${r.enabled ? '🟢' : '⏸️'} \`#${r.id}\` **${r.name}** — ${r.mode === 'cron' ? `cron \`${r.rule}\`` : `tous les ${formatDuration(parseDuration(r.rule))}`} • ${formatDuration(r.duration_ms)}${r.next_at ? ` • prochaine ${discordTimestamp(r.next_at, 'R')}` : ''} • ${r.created_count} créé(s)`).join('\n') || 'Aucun évènement récurrent.', '🔁 Évènements récurrents'), data: rows };
+        return { embed: infoEmbed(rows.map((r) => `${r.enabled ? '🟢' : '⏸\ufe0f'} \`#${r.id}\` **${r.name}** — ${r.mode === 'cron' ? `cron \`${r.rule}\`` : `tous les ${formatDuration(parseDuration(r.rule))}`} • ${formatDuration(r.duration_ms)}${r.next_at ? ` • prochaine ${discordTimestamp(r.next_at, 'R')}` : ''} • ${r.created_count} créé(s)`).join('\n') || 'Aucun évènement récurrent.', '🔁 Évènements récurrents'), data: rows };
       },
     },
     recurring_toggle: {

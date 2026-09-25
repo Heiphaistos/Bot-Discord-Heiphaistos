@@ -8,7 +8,7 @@ import { describeColor, renderColorPng, ColorError } from './lib/color.js';
 import { toYaml, fromYaml, YamlError } from './lib/yaml.js';
 import { formatSql } from './lib/sql.js';
 import { HTTP_STATUS, HTTP_CLASSES, MIME, encodeEntities, decodeEntities } from './lib/data.js';
-import { ulid, nanoid, uuidv7, decodeJwt, parseUserAgent, getPath, parsePath, NANOID_ALPHABET } from './lib/misc.js';
+import { ulid, nanoid, uuidv7, decodeJwt, parseUserAgent, getPath, parsePath, NANOID_ALPHABET, locateJsonError } from './lib/misc.js';
 import { runSandboxed } from './lib/sandbox.js';
 
 const NO_MENTIONS = { parse: [] };
@@ -38,20 +38,14 @@ async function readInput(params, key, fileKey, max = 1024 * 1024) {
 
 function parseJson(text) {
   try { return JSON.parse(text); } catch (err) {
-    const pos = Number(err.message.match(/position (\d+)/)?.[1]);
-    let where = '';
-    const lc = err.message.match(/line (\d+) column (\d+)/);
-    let line; let col;
-    if (lc) { line = Number(lc[1]); col = Number(lc[2]); } else if (Number.isFinite(pos)) { const before = text.slice(0, pos); line = before.split('\n').length; col = pos - before.lastIndexOf('\n'); }
-    if (line) {
-      const src = text.split('\n')[line - 1] || '';
-      const start = Math.max(0, col - 40);
-      where = `\nLigne ${line}, colonne ${col} :\n${codeBlock(`${src.slice(start, start + 80)}\n${' '.repeat(Math.max(0, col - 1 - start))}^`)}`;
-    }
-    throw new ActionError(`JSON invalide : ${err.message.replace(/ in JSON at position \d+.*$/, '').replace(/\s*\(line \d+ column \d+\)/, '')}${where}`);
+    const loc = locateJsonError(text);
+    if (!loc) throw new ActionError(`JSON invalide : ${err.message}`);
+    const before = text.slice(0, loc.pos); const line = before.split('\n').length; const col = loc.pos - before.lastIndexOf('\n');
+    const src = text.split('\n')[line - 1] || '';
+    const start = Math.max(0, col - 40);
+    throw new ActionError(`JSON invalide : ${loc.message}\nLigne ${line}, colonne ${col} :\n${codeBlock(`${src.slice(start, start + 80)}\n${' '.repeat(Math.max(0, col - 1 - start))}^`)}`);
   }
 }
-
 function ghRepoArg(s) {
   const m = String(s).trim().replace(/\.git$/, '').match(/(?:github\.com[/:])?([\w.-]+)\/([\w.-]+)\/?$/);
   if (!m) throw new ActionError('Format attendu : propriétaire/dépôt (ex : discordjs/discord.js)');
@@ -601,7 +595,7 @@ export default {
         if (!r.documents?.length && params.langue !== 'en-US') { r = await q('en-US'); locale = 'en-US'; }
         const docs = r.documents || [];
         const lines = docs.map((d) => `**[${d.title}](https://developer.mozilla.org${d.mdn_url})**\n${truncate(d.summary || '', 200)}`);
-        return { embed: embed({ color: 0x000000 + 1, title: `📚 MDN : ${truncate(params.recherche, 100)}${locale !== params.langue ? ' (résultats en anglais)' : ''}`, url: `https://developer.mozilla.org/${locale}/search?q=${encodeURIComponent(params.recherche)}`, description: lines.join('\n\n') || 'Aucun résultat.' }), data: docs.map((d) => ({ title: d.title, url: `https://developer.mozilla.org${d.mdn_url}`, summary: d.summary, locale })) };
+        return { embed: embed({ color: 0x1b1b1b, title: `📚 MDN : ${truncate(params.recherche, 100)}${locale !== params.langue ? ' (résultats en anglais)' : ''}`, url: `https://developer.mozilla.org/${locale}/search?q=${encodeURIComponent(params.recherche)}`, description: lines.join('\n\n') || 'Aucun résultat.' }), data: docs.map((d) => ({ title: d.title, url: `https://developer.mozilla.org${d.mdn_url}`, summary: d.summary, locale })) };
       },
     },
 

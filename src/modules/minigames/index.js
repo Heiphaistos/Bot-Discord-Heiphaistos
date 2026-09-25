@@ -585,7 +585,7 @@ async function cancelSession(ctx, s, userId) {
   let text;
   if (s.state === 'pending') {
     endSession(s); await refundAll(ctx, s);
-    text = `Défi annulé par <@${userId}>.${pot(s) === 0 ? '' : ''}`;
+    text = `Défi annulé par <@${userId}>, mises remboursées.`;
   } else if (s.players.length === 2 && opp && s.players.includes(userId)) {
     endSession(s);
     const won = await settlePvp(ctx, s, opp);

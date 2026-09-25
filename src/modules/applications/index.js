@@ -2,7 +2,7 @@ import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ModalBuilder, TextInputBu
 import { ActionError } from '../../core/actions.js';
 import { embed, infoEmbed, truncate, COLORS, discordTimestamp, formatDuration, parseDuration, renderTemplate } from '../../core/utils.js';
 
-const STATUS = { pending: '🕓 En attente de revue', onhold: '⏸️ En attente', accepted: '✅ Acceptée', denied: '❌ Refusée', withdrawn: '↩️ Retirée', received: '📨 Reçu' };
+const STATUS = { pending: '🕓 En attente de revue', onhold: '⏸\ufe0f En attente', accepted: '✅ Acceptée', denied: '❌ Refusée', withdrawn: '↩\ufe0f Retirée', received: '📨 Reçu' };
 const STATUS_COLORS = { pending: COLORS.info, onhold: COLORS.warning, accepted: COLORS.success, denied: COLORS.error, withdrawn: COLORS.neutral, received: COLORS.info };
 const DECISIONS = { accept: 'accepted', deny: 'denied', hold: 'onhold' };
 const TYPES = [{ name: 'Texte court', value: 'short' }, { name: 'Paragraphe', value: 'paragraph' }, { name: 'Choix (menu)', value: 'choice' }];
@@ -134,7 +134,7 @@ function reviewButtons(sub) {
   return [new ActionRowBuilder().addComponents(
     new ButtonBuilder().setCustomId(`applications:decide:${sub.id}:accept`).setLabel('Accepter').setEmoji('✅').setStyle(ButtonStyle.Success),
     new ButtonBuilder().setCustomId(`applications:decide:${sub.id}:deny`).setLabel('Refuser').setEmoji('❌').setStyle(ButtonStyle.Danger),
-    new ButtonBuilder().setCustomId(`applications:decide:${sub.id}:hold`).setLabel('En attente').setEmoji('⏸️').setStyle(ButtonStyle.Secondary).setDisabled(sub.status === 'onhold'),
+    new ButtonBuilder().setCustomId(`applications:decide:${sub.id}:hold`).setLabel('En attente').setEmoji('⏸\ufe0f').setStyle(ButtonStyle.Secondary).setDisabled(sub.status === 'onhold'),
   )];
 }
 async function updateReviewMessage(ctx, guild, form, sub) {
@@ -222,7 +222,7 @@ function csvCell(v) {
   const safe = /^[=+\-@\t\r]/.test(s) ? `'${s}` : s; // neutralise formula injection
   return /[";\n\r,]/.test(safe) ? `"${safe.replace(/"/g, '""')}"` : safe;
 }
-function toCsv(rows) { return `﻿${rows.map((r) => r.map(csvCell).join(',')).join('\r\n')}\r\n`; }
+function toCsv(rows) { return `\ufeff${rows.map((r) => r.map(csvCell).join(',')).join('\r\n')}\r\n`; }
 
 // ============================================================================
 // Module
@@ -243,10 +243,10 @@ async function doReview(ctx, guild, actor, sub, decision, reason) {
   const member = await ctx.resolve.member(guild, sub.user_id);
   if (status === 'accepted' && form.role_id) {
     const role = guild.roles.cache.get(form.role_id);
-    if (!member) notes.push('⚠️ Le membre n\'est plus sur le serveur : rôle non attribué.');
-    else if (!role) notes.push('⚠️ Rôle configuré introuvable.');
-    else if (role.position >= (guild.members.me?.roles.highest.position ?? 0) || role.managed) notes.push(`⚠️ Impossible d'attribuer ${role} (hiérarchie).`);
-    else { const ok = await member.roles.add(role, `Candidature #${sub.id} acceptée`).then(() => true).catch(() => false); notes.push(ok ? `🎖️ Rôle ${role} attribué.` : `⚠️ Échec de l'attribution de ${role}.`); }
+    if (!member) notes.push('⚠\ufe0f Le membre n\'est plus sur le serveur : rôle non attribué.');
+    else if (!role) notes.push('⚠\ufe0f Rôle configuré introuvable.');
+    else if (role.position >= (guild.members.me?.roles.highest.position ?? 0) || role.managed) notes.push(`⚠\ufe0f Impossible d'attribuer ${role} (hiérarchie).`);
+    else { const ok = await member.roles.add(role, `Candidature #${sub.id} acceptée`).then(() => true).catch(() => false); notes.push(ok ? `🎖\ufe0f Rôle ${role} attribué.` : `⚠\ufe0f Échec de l'attribution de ${role}.`); }
   }
   if (status !== 'onhold' && form.dm_result && s.dmResults) {
     const user = member?.user || await ctx.resolve.user(sub.user_id);
@@ -325,7 +325,7 @@ export default {
           { name: 'Salon de revue', value: f.review_channel_id ? `<#${f.review_channel_id}>` : (s.defaultReviewChannel ? `<#${s.defaultReviewChannel}> (défaut)` : '—'), inline: true },
           { name: 'Rôle si accepté', value: f.role_id ? `<@&${f.role_id}>` : '—', inline: true },
           { name: 'Rôle notifié', value: f.ping_role_id ? `<@&${f.ping_role_id}>` : '—', inline: true },
-          { name: 'Options', value: `${f.anonymous ? '🕶️ anonyme' : '👤 nominatif'} • MP ${f.dm_result ? 'oui' : 'non'}${f.reapply_cooldown_ms ? ` • délai ${formatDuration(f.reapply_cooldown_ms)}` : ''}`, inline: true },
+          { name: 'Options', value: `${f.anonymous ? '🕶\ufe0f anonyme' : '👤 nominatif'} • MP ${f.dm_result ? 'oui' : 'non'}${f.reapply_cooldown_ms ? ` • délai ${formatDuration(f.reapply_cooldown_ms)}` : ''}`, inline: true },
           { name: 'Candidatures', value: Object.entries(counts).map(([k, n]) => `${STATUS[k] || k} : ${n}`).join('\n') || 'Aucune', inline: true },
         ] }), data: { ...f, questions: qs, counts } };
       },
@@ -716,7 +716,7 @@ export default {
       ctx.cache.set(key, draft);
       const pages = Math.ceil(qs.length / PER_PAGE);
       if (page + 1 < pages) {
-        const row = new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId(`applications:next:${f.id}:${page + 1}`).setLabel(`Continuer (${page + 2}/${pages})`).setStyle(ButtonStyle.Primary).setEmoji('➡️'));
+        const row = new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId(`applications:next:${f.id}:${page + 1}`).setLabel(`Continuer (${page + 2}/${pages})`).setStyle(ButtonStyle.Primary).setEmoji('➡\ufe0f'));
         return interaction.reply({ content: `✅ Page ${page + 1}/${pages} enregistrée. Cliquez pour continuer (brouillon conservé 30 minutes).`, components: [row], flags: MessageFlags.Ephemeral });
       }
       try {

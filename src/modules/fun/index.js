@@ -87,7 +87,7 @@ const IMAGE_PARAMS = {
 /** Fabrique une action d'effet d'image (/image <nom>). */
 function imgAct(name, label, description, fn, extraParams = {}) {
   return {
-    description, slash: { group: 'image', name }, permissions: [], audit: false, cooldown: 5,
+    description, slash: { group: 'fun', subgroup: 'image', name }, permissions: [], audit: false, cooldown: 5,
     params: { ...IMAGE_PARAMS, ...extraParams },
     async run(ctx, { guild, actor, params, source }) {
       const url = await imageSource(ctx, guild, actor, params);

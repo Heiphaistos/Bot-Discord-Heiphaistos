@@ -116,3 +116,24 @@ export function getPath(obj, path) {
   }
   return multi ? { found: cur.length > 0, value: cur } : { found: cur.length > 0, value: cur[0] };
 }
+
+/** Locate the first JSON syntax error: returns { pos, message } or null when valid. */
+export function locateJsonError(src) {
+  let i = 0; const s = String(src);
+  const fail = (msg) => { const e = new Error(msg); e.pos = i; throw e; };
+  const ws = () => { while (i < s.length && ' \t\n\r'.includes(s[i])) i++; };
+  const value = () => {
+    ws();
+    const c = s[i];
+    if (c === '{') { i++; ws(); if (s[i] === '}') { i++; return; } for (;;) { ws(); if (s[i] !== '"') fail('Clé entre guillemets doubles attendue'); string(); ws(); if (s[i] !== ':') fail('« : » attendu après la clé'); i++; value(); ws(); if (s[i] === ',') { i++; ws(); if (s[i] === '}') fail('Virgule finale interdite'); continue; } if (s[i] === '}') { i++; return; } fail('« , » ou « } » attendu'); } }
+    if (c === '[') { i++; ws(); if (s[i] === ']') { i++; return; } for (;;) { value(); ws(); if (s[i] === ',') { i++; ws(); if (s[i] === ']') fail('Virgule finale interdite'); continue; } if (s[i] === ']') { i++; return; } fail('« , » ou « ] » attendu'); } }
+    if (c === '"') return string();
+    if (c === "'") fail('Les chaînes JSON utilisent des guillemets doubles');
+    if (/[-0-9]/.test(c || '')) { const m = s.slice(i).match(/^-?(0|[1-9]\d*)(\.\d+)?([eE][+-]?\d+)?/); if (!m || !m[0] || m[0] === '-') fail('Nombre invalide'); i += m[0].length; return; }
+    for (const lit of ['true', 'false', 'null']) if (s.startsWith(lit, i)) { i += lit.length; return; }
+    if (i >= s.length) fail('Fin de texte inattendue');
+    fail(`Caractère inattendu « ${c} »`);
+  };
+  const string = () => { i++; while (i < s.length) { const c = s[i]; if (c === '"') { i++; return; } if (c === '\\') { i++; if (!'"\\/bfnrtu'.includes(s[i] || '')) fail('Échappement invalide'); if (s[i] === 'u' && !/^[0-9a-fA-F]{4}$/.test(s.slice(i + 1, i + 5))) fail('Séquence \\u invalide'); i += s[i] === 'u' ? 5 : 1; continue; } if (c < ' ') fail('Caractère de contrôle non échappé dans une chaîne'); i++; } fail('Chaîne non terminée'); };
+  try { value(); ws(); if (i < s.length) fail('Contenu inattendu après la valeur JSON'); return null; } catch (e) { return { pos: e.pos ?? i, message: e.message }; }
+}

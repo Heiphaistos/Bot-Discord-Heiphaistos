@@ -377,7 +377,7 @@ export default {
     },
     // ---------------- FAQ ----------------
     faq_add: {
-      description: 'Ajouter une question à la FAQ', slash: { group: 'faq', name: 'add' }, permissions: ['ManageMessages'],
+      description: 'Ajouter une question à la FAQ', slash: { group: 'onboarding', subgroup: 'faq', name: 'add' }, permissions: ['ManageMessages'],
       params: { question: { type: 'string', required: true, maxLength: 200, description: 'Question' }, reponse: { type: 'text', required: true, maxLength: 3000, description: 'Réponse' }, mots_cles: { type: 'list', description: 'Mots-clés (séparés par des virgules)' } },
       async run(ctx, { guild, actor, params }) {
         if (ctx.db.prepare('SELECT COUNT(*) n FROM ob_faq WHERE guild_id = ?').get(guild.id).n >= 200) throw new ActionError('200 entrées maximum');
@@ -388,7 +388,7 @@ export default {
       },
     },
     faq_edit: {
-      description: 'Modifier une entrée de la FAQ', slash: { group: 'faq', name: 'edit' }, permissions: ['ManageMessages'],
+      description: 'Modifier une entrée de la FAQ', slash: { group: 'onboarding', subgroup: 'faq', name: 'edit' }, permissions: ['ManageMessages'],
       params: { id: { type: 'integer', required: true, min: 1, description: 'Entrée', autocomplete: faqAutocomplete }, question: { type: 'string', maxLength: 200, description: 'Nouvelle question' }, reponse: { type: 'text', maxLength: 3000, description: 'Nouvelle réponse' }, mots_cles: { type: 'list', description: 'Nouveaux mots-clés' } },
       async run(ctx, { guild, params }) {
         const row = ctx.db.prepare('SELECT * FROM ob_faq WHERE guild_id = ? AND id = ?').get(guild.id, params.id);
@@ -400,7 +400,7 @@ export default {
       },
     },
     faq_get: {
-      description: 'Afficher une réponse de la FAQ', slash: { group: 'faq', name: 'get' }, permissions: [], audit: false,
+      description: 'Afficher une réponse de la FAQ', slash: { group: 'onboarding', subgroup: 'faq', name: 'get' }, permissions: [], audit: false,
       params: { id: { type: 'integer', required: true, min: 1, description: 'Question', autocomplete: faqAutocomplete }, membre: { type: 'user', description: 'Mentionner un membre' } },
       async run(ctx, { guild, params }) {
         const f = faqs(ctx, guild.id).find((x) => x.id === params.id);
@@ -410,7 +410,7 @@ export default {
       },
     },
     faq_search: {
-      description: 'Rechercher dans la FAQ', slash: { group: 'faq', name: 'search' }, permissions: [], audit: false, ephemeral: true,
+      description: 'Rechercher dans la FAQ', slash: { group: 'onboarding', subgroup: 'faq', name: 'search' }, permissions: [], audit: false, ephemeral: true,
       params: { recherche: { type: 'string', required: true, maxLength: 200, description: 'Votre question' } },
       async run(ctx, { guild, params }) {
         const list = faqs(ctx, guild.id);
@@ -425,14 +425,14 @@ export default {
       },
     },
     faq_list: {
-      description: 'Lister les questions de la FAQ', slash: { group: 'faq', name: 'list' }, permissions: [], audit: false,
+      description: 'Lister les questions de la FAQ', slash: { group: 'onboarding', subgroup: 'faq', name: 'list' }, permissions: [], audit: false,
       async run(ctx, { guild }) {
         const list = faqs(ctx, guild.id);
         return { embed: infoEmbed(truncate(list.map((f) => `**#${f.id}** ${truncate(f.question, 100)}`).join('\n') || 'La FAQ est vide.', 4000), `FAQ (${list.length})`), data: list };
       },
     },
     faq_remove: {
-      description: 'Supprimer une entrée de la FAQ', slash: { group: 'faq', name: 'remove' }, permissions: ['ManageMessages'],
+      description: 'Supprimer une entrée de la FAQ', slash: { group: 'onboarding', subgroup: 'faq', name: 'remove' }, permissions: ['ManageMessages'],
       params: { id: { type: 'integer', required: true, min: 1, description: 'Entrée', autocomplete: faqAutocomplete } },
       async run(ctx, { guild, params }) {
         const n = ctx.db.prepare('DELETE FROM ob_faq WHERE guild_id = ? AND id = ?').run(guild.id, params.id).changes;

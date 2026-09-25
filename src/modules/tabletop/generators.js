@@ -109,9 +109,9 @@ export function generateEncounter(env = null, rng = Math.random) {
 
 // ---------------- Météo ----------------
 const WEATHER = [
-  { w: 25, sky: '☀️ Ciel dégagé', effect: 'Aucun malus.' }, { w: 20, sky: '⛅ Nuageux', effect: 'Aucun malus.' }, { w: 12, sky: '🌫️ Brouillard', effect: 'Visibilité réduite à 20 m, désavantage à la Perception (vue).' },
-  { w: 15, sky: '🌧️ Pluie', effect: 'Feux difficiles à allumer, désavantage à la Perception (ouïe).' }, { w: 6, sky: '⛈️ Orage', effect: 'Risque de foudre, déplacements ralentis, attaques à distance au désavantage.' },
-  { w: 8, sky: '❄️ Neige', effect: 'Terrain difficile, jets de Constitution contre le froid.' }, { w: 6, sky: '💨 Vent violent', effect: 'Attaques à distance au désavantage, vol difficile.' },
+  { w: 25, sky: '☀\ufe0f Ciel dégagé', effect: 'Aucun malus.' }, { w: 20, sky: '⛅ Nuageux', effect: 'Aucun malus.' }, { w: 12, sky: '🌫\ufe0f Brouillard', effect: 'Visibilité réduite à 20 m, désavantage à la Perception (vue).' },
+  { w: 15, sky: '🌧\ufe0f Pluie', effect: 'Feux difficiles à allumer, désavantage à la Perception (ouïe).' }, { w: 6, sky: '⛈\ufe0f Orage', effect: 'Risque de foudre, déplacements ralentis, attaques à distance au désavantage.' },
+  { w: 8, sky: '❄\ufe0f Neige', effect: 'Terrain difficile, jets de Constitution contre le froid.' }, { w: 6, sky: '💨 Vent violent', effect: 'Attaques à distance au désavantage, vol difficile.' },
   { w: 4, sky: '🔥 Canicule', effect: 'Épuisement si voyage sans eau suffisante.' }, { w: 2, sky: '🌌 Phénomène magique', effect: 'Aurores étranges : la magie sauvage peut se déclencher.' },
 ];
 const TEMPS = { hiver: [-15, 5], printemps: [5, 18], ete: [18, 38], automne: [3, 16] };
