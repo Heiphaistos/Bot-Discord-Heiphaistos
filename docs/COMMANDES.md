@@ -1,22 +1,22 @@
 # HeiphaisBot — Référence des modules et commandes
 
-> Généré automatiquement par `node src/scripts/docs.js`. 45 modules, 78 commandes slash de premier niveau, 954 actions.
+> Généré automatiquement par `node src/scripts/docs.js`. 62 modules, 94 commandes slash de premier niveau, 1366 actions.
 
 Chaque action est disponible en commande slash, via l'API (`POST /api/guilds/:id/actions/<module>/<action>`), via la CLI (`heiphais <module> <action> k=v`) et dans le panel.
 
 ## Sommaire
 
-- **Système & DevOps** : [Administration](#admin), [Sauvegardes du serveur](#backup), [Réseau](#network), [Exploitation VPS](#ops), [Administration système](#sysadmin)
-- **Utilitaires** : [Intelligence artificielle](#ai), [Annonces](#announcements), [Automatisations](#automation), [Commandes personnalisées](#customcommands), [Notifications](#notifications), [Rappels](#reminders), [Outils texte](#textutils), [Boîte à outils](#tools), [Utilitaires](#utility)
-- **Sécurité** : [Anti-raid](#antiraid), [Auto-modération](#automod)
-- **Communauté** : [Anniversaires](#birthday), [Giveaways](#giveaways), [Invitations](#invites), [Niveaux](#leveling), [Sondages](#polls), [Citations](#quotes), [Rôles-réactions](#reactionroles), [Starboard](#starboard), [Statistiques](#stats), [Suggestions](#suggestions), [Salons vocaux temporaires](#tempvoice), [Tickets](#tickets), [Bienvenue](#welcome)
-- **Économie & jeux** : [Casino](#casino), [Économie](#economy), [RPG](#rpg)
-- **Général** : [Salons](#channels), [Rôles](#roles), [Fils](#threads)
+- **Système & DevOps** : [Administration](#admin), [Sauvegardes du serveur](#backup), [Administration DB](#dbadmin), [Réseau](#network), [Exploitation VPS](#ops), [Administration système](#sysadmin)
+- **Utilitaires** : [Intelligence artificielle](#ai), [Annonces](#announcements), [Automatisations](#automation), [Commandes personnalisées](#customcommands), [Outils développeur](#devtools), [Notifications](#notifications), [Rappels](#reminders), [Outils texte](#textutils), [Tickers](#tickers), [Boîte à outils](#tools), [Utilitaires](#utility)
+- **Communauté** : [Analytique](#analytics), [Candidatures](#applications), [Anniversaires](#birthday), [Évènements](#events), [Giveaways](#giveaways), [Invitations](#invites), [Niveaux](#leveling), [Accueil & FAQ](#onboarding), [Partenariats](#partners), [Sondages](#polls), [Citations](#quotes), [Rôles-réactions](#reactionroles), [Social](#social), [Starboard](#starboard), [Statistiques](#stats), [Suggestions](#suggestions), [Salons vocaux temporaires](#tempvoice), [Tickets](#tickets), [Vocal](#voice), [Bienvenue](#welcome)
+- **Sécurité** : [Anti-raid](#antiraid), [Auto-modération](#automod), [Anti-nuke (ServerGuard)](#serverguard)
+- **Économie & jeux** : [Casino](#casino), [Économie](#economy), [Économie+](#economyplus), [RPG](#rpg)
+- **Fun** : [Jeux de salon](#channelgames), [Fun](#fun), [Mini-jeux](#minigames), [Jeu de rôle](#tabletop)
+- **Général** : [Salons](#channels), [Emojis](#emojis), [Rôles](#roles), [Fils](#threads), [Webhooks](#webhooks)
 - **Intégrations** : [Flux & alertes](#feeds), [Intégrations](#integrations)
-- **Fun** : [Fun](#fun), [Jeu de rôle](#tabletop)
 - **Gaming** : [Gaming](#gaming)
 - **Modération** : [Journalisation](#logs), [Modération](#moderation), [Outils de modération](#modtools), [Sanctions avancées](#sanctions)
-- **Musique & médias** : [Musique](#music)
+- **Musique & médias** : [Média](#media), [Musique](#music)
 
 
 # Système & DevOps
@@ -73,6 +73,38 @@ Chaque action est disponible en commande slash, via l'API (`POST /api/guilds/:id
 | `/backup import` | `backup_import` | Importer une sauvegarde depuis un fichier JSON | `fichier` (attachment), `json` (json), `nom` (string) | Administrator |
 
 **Vues du panel** : Sauvegardes, Restaurations
+
+
+## 🗄️ Administration DB <a id="dbadmin"></a>
+
+`dbadmin` — Administration de la base SQLite du bot : tables, schéma, requêtes en lecture seule, écriture journalisée, export/import, maintenance. *(désactivé par défaut)*
+
+**Paramètres (3)** : `maxRows` (integer, défaut `200`) — Lignes max par requête · `backupKeep` (integer, défaut `10`) — Sauvegardes locales conservées · `cleanupDays` (integer, défaut `30`) — Délai de nettoyage des serveurs quittés (jours)
+
+| Commande | Action | Description | Paramètres | Permissions |
+|---|---|---|---|---|
+| `/db tables` | `tables` | Tables : lignes et taille estimée | — | Propriétaire du bot |
+| `/db schema` | `schema` | Schéma d'une table | `table`* (string) | Propriétaire du bot |
+| `/db query` | `query` | Requête SELECT en lecture seule (200 lignes max) | `sql`* (text), `format` (choice) | Propriétaire du bot |
+| `/db exec` | `exec` | Exécuter du SQL d'écriture (transaction, journalisé) | `sql`* (text), `confirm` (boolean) | Propriétaire du bot |
+| `/db export` | `export` | Exporter une table (CSV ou JSON) | `table`* (string), `format` (choice) | Propriétaire du bot |
+| `/db import` | `import` | Importer des lignes JSON dans une table | `table`* (string), `fichier` (attachment), `json` (json), `mode` (choice), `truncate` (boolean), `confirm` (boolean) | Propriétaire du bot |
+| `/db vacuum` | `vacuum` | VACUUM + checkpoint WAL (compacte la base) | — | Propriétaire du bot |
+| `/db integrity` | `integrity` | Vérifier l'intégrité (integrity_check, clés étrangères) | `quick` (boolean) | Propriétaire du bot |
+| `/db size` | `size` | Taille du fichier, WAL et pages libres | — | Propriétaire du bot |
+| `/db stats` | `stats` | Statistiques : lignes par table, plus grosses tables | — | Propriétaire du bot |
+| `/db backup` | `backup` | Sauvegarder la base (via sysadmin si disponible) | — | Propriétaire du bot |
+| `/db prune` | `prune` | Supprimer les lignes plus vieilles que N jours | `table`* (string), `days`* (integer), `column` (string), `confirm` (boolean) | Propriétaire du bot |
+| `/db settings` | `settings` | Lecture brute de guild_settings | `guild` (string), `module` (string) | Propriétaire du bot |
+| `/db kv` | `kv` | Table kv : list, get, set, delete | `action` (choice), `key` (string), `value` (text) | Propriétaire du bot |
+| `/db jobs` | `jobs` | Jobs planifiés : list / delete | `action` (choice), `id` (integer), `module` (string) | Propriétaire du bot |
+| `/db sessions` | `sessions` | Purger les sessions du panel (expirées ou toutes) | `all` (boolean), `confirm` (boolean) | Propriétaire du bot |
+| `/db migrations` | `migrations` | Migrations appliquées par module | — | Propriétaire du bot |
+| `/db guilds` | `guilds` | Table guilds (présence, départ) | `left_only` (boolean) | Propriétaire du bot |
+| `/db cleanup` | `cleanup` | Supprimer les données des serveurs quittés | `days` (integer), `confirm` (boolean) | Propriétaire du bot |
+| `/db log` | `log` | Journal des opérations d'écriture dbadmin | `limit` (integer) | Propriétaire du bot |
+
+**Vues du panel** : Tables, Journal
 
 
 ## 🌐 Réseau <a id="network"></a>
@@ -321,6 +353,53 @@ Chaque action est disponible en commande slash, via l'API (`POST /api/guilds/:id
 **Vues du panel** : Tags, Réponses automatiques
 
 
+## 🧑‍💻 Outils développeur <a id="devtools"></a>
+
+`devtools` — GitHub, npm/PyPI/Docker/crates, regex, JSON/YAML, cron, CIDR, couleurs, JWT, UUID/ULID, SQL, statuts de services, recherche StackOverflow/MDN, exécution JS isolée. 
+
+**Paramètres (4)** : `githubToken` (string) — Jeton GitHub (optionnel) · `allowJsEval` (boolean, défaut `false`) — Autoriser /dev run à tous les membres · `timezone` (string, défaut `Europe/Paris`) — Fuseau horaire · `hashMaxMb` (integer, défaut `25`) — Taille max. pour /dev encode hash (Mo)
+
+| Commande | Action | Description | Paramètres | Permissions |
+|---|---|---|---|---|
+| `/dev github repo` | `github_repo` | Infos d'un dépôt GitHub | `depot`* (string) | Tous |
+| `/dev github issues` | `github_issues` | Dernières issues d'un dépôt | `depot`* (string), `etat` (choice) | Tous |
+| `/dev github prs` | `github_prs` | Dernières pull requests d'un dépôt | `depot`* (string), `etat` (choice) | Tous |
+| `/dev github commits` | `github_commits` | Derniers commits d'un dépôt | `depot`* (string), `branche` (string) | Tous |
+| `/dev github user` | `github_user` | Profil d'un utilisateur ou d'une organisation GitHub | `nom`* (string) | Tous |
+| `/dev github release` | `github_release` | Dernière release (ou une version précise) d'un dépôt | `depot`* (string), `tag` (string) | Tous |
+| `/dev pkg npm` | `pkg_npm` | Infos d'un paquet npm | `paquet`* (string) | Tous |
+| `/dev pkg pypi` | `pkg_pypi` | Infos d'un paquet Python (PyPI) | `paquet`* (string) | Tous |
+| `/dev pkg docker` | `pkg_docker` | Image Docker Hub et tags récents | `image`* (string) | Tous |
+| `/dev pkg crate` | `pkg_crate` | Infos d'une crate Rust (crates.io) | `crate`* (string) | Tous |
+| `/dev regex` | `regex` | Tester une expression régulière (isolée, délai 1 s) | `pattern`* (string), `texte`* (string), `flags` (string), `remplacement` (string) | Tous |
+| `/dev json format` | `json_format` | Indenter (embellir) du JSON | `json` (string), `fichier` (attachment), `indentation` (choice), `trier` (boolean) | Tous |
+| `/dev json minify` | `json_minify` | Minifier du JSON | `json` (string), `fichier` (attachment) | Tous |
+| `/dev json validate` | `json_validate` | Valider du JSON (erreur avec ligne/colonne) | `json` (string), `fichier` (attachment) | Tous |
+| `/dev json path` | `json_path` | Extraire une valeur par chemin (a.b[0].c) | `chemin`* (string), `json` (string), `fichier` (attachment) | Tous |
+| `/dev json toyaml` | `json_toyaml` | Convertir du JSON en YAML | `json` (string), `fichier` (attachment) | Tous |
+| `/dev json fromyaml` | `json_fromyaml` | Convertir du YAML simple en JSON | `yaml` (string), `fichier` (attachment) | Tous |
+| `/dev cron` | `cron` | Expliquer une expression cron en français | `expression`* (string), `fuseau` (string) | Tous |
+| `/dev timestamp` | `timestamp` | Convertir une date / un timestamp (formats Discord) | `valeur` (string), `fuseau` (string) | Tous |
+| `/dev color` | `color` | Convertir une couleur (hex/rgb/hsl/cmyk) + aperçu et palette | `couleur`* (string) | Tous |
+| `/dev sql` | `sql` | Formater une requête SQL | `requete` (string), `fichier` (attachment), `majuscules` (boolean) | Tous |
+| `/dev gen uuid` | `gen_uuid` | Générer des UUID (v4 aléatoire ou v7 ordonné) | `version` (choice), `nombre` (integer), `majuscules` (boolean) | Tous |
+| `/dev gen ulid` | `gen_ulid` | Générer des ULID | `nombre` (integer) | Tous |
+| `/dev gen nanoid` | `gen_nanoid` | Générer des NanoID | `taille` (integer), `nombre` (integer), `alphabet` (string) | Tous |
+| `/dev web http` | `web_http` | Signification d'un code de statut HTTP | `code`* (integer) | Tous |
+| `/dev web mime` | `web_mime` | Type MIME d'une extension (ou extensions d'un type) | `valeur`* (string) | Tous |
+| `/dev web url` | `web_url` | Décomposer une URL (composants + paramètres) | `url`* (string) | Tous |
+| `/dev web useragent` | `web_useragent` | Analyser un User-Agent | `ua`* (string) | Tous |
+| `/dev web ipcalc` | `web_ipcalc` | Calculatrice IP / CIDR (IPv4 et IPv6) | `cidr`* (string) | Tous |
+| `/dev web status` | `web_status` | État des services (GitHub, Discord, Cloudflare, npm, Reddit) | `service` (choice) | Tous |
+| `/dev encode base64img` | `encode_base64img` | Convertir une image en base64 (ou data URI) en fichier | `base64` (string), `fichier` (attachment), `nom` (string) | Tous |
+| `/dev encode entities` | `encode_entities` | Encoder / décoder des entités HTML | `texte`* (string), `mode` (choice), `style` (choice) | Tous |
+| `/dev encode jwt` | `encode_jwt` | Décoder un JWT (sans vérifier la signature) | `jeton`* (string) | Tous |
+| `/dev encode hash` | `encode_hash` | Empreintes MD5/SHA d'un fichier, d'une URL ou d'un texte | `url` (string), `fichier` (attachment), `texte` (string) | Tous |
+| `/dev search stackoverflow` | `search_stackoverflow` | Rechercher une question sur Stack Overflow | `question`* (string), `tag` (string) | Tous |
+| `/dev search mdn` | `search_mdn` | Rechercher dans la documentation MDN | `recherche`* (string), `langue` (choice) | Tous |
+| `/dev run` | `run_js` | Exécuter du JavaScript isolé (2 s, sans accès système) | `code`* (string) | Tous |
+
+
 ## 🔔 Notifications <a id="notifications"></a>
 
 `notifications` — Mots-clés surveillés, abonnements aux salons/rôles, récapitulatifs par MP, historique des mentions et alertes staff. 
@@ -422,6 +501,35 @@ Chaque action est disponible en commande slash, via l'API (`POST /api/guilds/:id
 **Vues du panel** : Pastes
 
 
+## 📊 Tickers <a id="tickers"></a>
+
+`tickers` — Salons et tableau mis à jour automatiquement : cryptos, actions, devises, météo, comptes à rebours, abonnés YouTube/Twitch, étoiles GitHub, stats du serveur, API JSON. 
+
+**Paramètres (10)** : `autoCreateChannel` (boolean, défaut `true`) — Créer un salon vocal verrouillé pour chaque ticker · `category` (channel) — Catégorie des salons créés · `defaultInterval` (string, défaut `15m`) — Intervalle par défaut · `maxTickers` (integer, défaut `15`) — Nombre max. de tickers · `boardChannel` (channel) — Salon du tableau · `boardMessageId` (string) — Message du tableau (automatique) · `youtubeKey` (string) — Clé YouTube Data API (optionnelle) · `twitchClientId` (string) — Twitch Client ID · `twitchClientSecret` (string) — Twitch Client Secret · `githubToken` (string) — Jeton GitHub (optionnel)
+
+| Commande | Action | Description | Paramètres | Permissions |
+|---|---|---|---|---|
+| `/tickers add crypto` | `add_crypto` | Cours d'une cryptomonnaie (CoinGecko) | `symbole`* (string), `devise` (string), `salon` (channel), `format` (string), `intervalle` (duration), `tableau_seul` (boolean) | ManageChannels |
+| `/tickers add stock` | `add_stock` | Cours d'une action (Yahoo Finance, repli Stooq) | `symbole`* (string), `salon` (channel), `format` (string), `intervalle` (duration), `tableau_seul` (boolean) | ManageChannels |
+| `/tickers add forex` | `add_forex` | Taux de change (BCE via Frankfurter) | `de`* (string), `vers`* (string), `salon` (channel), `format` (string), `intervalle` (duration), `tableau_seul` (boolean) | ManageChannels |
+| `/tickers add weather` | `add_weather` | Température actuelle d'une ville (Open-Meteo) | `ville`* (string), `salon` (channel), `format` (string), `intervalle` (duration), `tableau_seul` (boolean) | ManageChannels |
+| `/tickers add countdown` | `add_countdown` | Compte à rebours vers une date (« 🎉 Noël : J-12 ») | `date`* (date), `libelle`* (string), `emoji` (string), `salon` (channel), `format` (string), `intervalle` (duration), `tableau_seul` (boolean) | ManageChannels |
+| `/tickers add youtube` | `add_youtube` | Abonnés d'une chaîne YouTube | `chaine`* (string), `salon` (channel), `format` (string), `intervalle` (duration), `tableau_seul` (boolean) | ManageChannels |
+| `/tickers add twitch` | `add_twitch` | Followers d'une chaîne Twitch (clés Twitch requises) | `chaine`* (string), `salon` (channel), `format` (string), `intervalle` (duration), `tableau_seul` (boolean) | ManageChannels |
+| `/tickers add github` | `add_github` | Étoiles d'un dépôt GitHub | `depot`* (string), `salon` (channel), `format` (string), `intervalle` (duration), `tableau_seul` (boolean) | ManageChannels |
+| `/tickers add server` | `add_server` | Statistique du serveur (membres, boosts…) — tableau par défaut | `metrique`* (choice), `salon` (channel), `format` (string), `intervalle` (duration), `tableau_seul` (boolean) | ManageChannels |
+| `/tickers add custom` | `add_custom` | Valeur extraite d'une API JSON | `url`* (string), `chemin`* (string), `libelle`* (string), `suffixe` (string), `emoji` (string), `salon` (channel), `format` (string), `intervalle` (duration), `tableau_seul` (boolean) | ManageChannels |
+| `/tickers list` | `list` | Lister les tickers du serveur | — | Tous |
+| `/tickers remove` | `remove` | Supprimer un ticker | `id`* (integer), `supprimer_salon` (boolean) | ManageChannels |
+| `/tickers refresh` | `refresh` | Rafraîchir un ticker (ou tous) maintenant | `id` (integer) | ManageChannels |
+| `/tickers pause` | `pause` | Mettre un ticker en pause | `id`* (integer) | ManageChannels |
+| `/tickers resume` | `resume` | Reprendre un ticker en pause | `id`* (integer) | ManageChannels |
+| `/tickers edit` | `edit` | Modifier le format, le libellé ou l'intervalle d'un ticker | `id`* (integer), `format` (string), `libelle` (string), `intervalle` (duration) | ManageChannels |
+| `/tickers board` | `board` | Tableau (un message) regroupant tous les tickers, mis à jour toutes les 10 min | `salon` (channel), `desactiver` (boolean) | ManageChannels |
+
+**Vues du panel** : Tickers
+
+
 ## 🧰 Boîte à outils <a id="tools"></a>
 
 `tools` — Mots de passe, encodage, hachage, chiffrement AES, JWT, UUID, JSON, regex, QR codes, raccourcisseur de liens, aléatoire, comptes à rebours. 
@@ -500,68 +608,72 @@ Chaque action est disponible en commande slash, via l'API (`POST /api/guilds/:id
 **Vues du panel** : Membres AFK, Alertes météo
 
 
-# Sécurité
-
-## 🛡️ Anti-raid <a id="antiraid"></a>
-
-`antiraid` — Détection de vagues d'arrivées, mode raid / panique, quarantaine des comptes récents, vérification captcha (Discord ou web) et liste noire globale. 
-
-**Paramètres (29)** : `logChannel` (channel) — Salon des logs · `alertChannel` (channel) — Salon des alertes raid · `alertRole` (role) — Rôle à mentionner lors d'une alerte · `joinThreshold` (integer, défaut `10`) — Seuil d'arrivées · `joinWindow` (integer, défaut `10`) — Fenêtre (secondes) · `raidDuration` (integer, défaut `10`) — Durée du mode raid (minutes) · `raidLockdown` (boolean, défaut `true`) — Verrouiller les salons pendant un raid · `raidVerificationLevel` (boolean, défaut `true`) — Augmenter le niveau de vérification du serveur · `raidAction` (choice, défaut `kick`) — Action sur les comptes arrivés pendant la vague · `quarantineEnabled` (boolean, défaut `false`) — Quarantaine automatique des comptes récents · `minAccountAgeHours` (integer, défaut `24`) — Âge minimum du compte (heures) · `quarantineRole` (role) — Rôle de quarantaine · `quarantineReleaseMinutes` (integer, défaut `0`) — Libération automatique (minutes) · `quarantineReleaseOnVerify` (boolean, défaut `true`) — Libérer la quarantaine après vérification · `verificationEnabled` (boolean, défaut `false`) — Vérification des nouveaux membres · `verificationMethod` (choice, défaut `emoji`) — Méthode · `unverifiedRole` (role) — Rôle « non vérifié » · `verifiedRole` (role) — Rôle « vérifié » · `verifyChannel` (channel) — Salon de vérification · `dmVerifyLink` (boolean, défaut `true`) — Envoyer les instructions en MP à l'arrivée · `verifyDmMessage` (text, défaut `Bienvenue sur **{server.name}** ! Pour a`) — Message de MP · `kickUnverifiedMinutes` (integer, défaut `0`) — Expulser si non vérifié après (minutes) · `vpnCheck` (boolean, défaut `false`) — Refuser VPN / proxy / hébergeurs (captcha web) · `verifiedWelcomeChannel` (channel) — Salon du message de bienvenue (après vérification) · `verifiedWelcomeMessage` (text, défaut ``) — Message de bienvenue vérifié · `enforceGlobalBlacklist` (boolean, défaut `true`) — Bannir automatiquement les comptes de la liste noire globale · `allowLocalAdditions` (boolean, défaut `false`) — Les admins du serveur peuvent alimenter la liste noire globale · `whitelist` (list) — Utilisateurs exemptés · `botsExempt` (boolean, défaut `true`) — Ignorer les bots
-
-| Commande | Action | Description | Paramètres | Permissions |
-|---|---|---|---|---|
-| `/verify` | `verify` | Se vérifier (captcha) pour accéder au serveur | — | Tous |
-| `/antiraid status` | `status` | État de l'anti-raid (raid en cours, quarantaine, vérification) | — | ModerateMembers |
-| `/antiraid config` | `config` | Voir ou modifier un paramètre de l'anti-raid | `key` (string), `value` (string) | ManageGuild |
-| `/antiraid panic` | `panic` | Activer manuellement le mode raid (panique) | `duration` (duration), `reason` (string), `action` (choice) | Administrator |
-| `/antiraid stop` | `stop` | Mettre fin au mode raid | `reason` (string) | Administrator |
-| `/antiraid setup` | `setup` | Créer / configurer automatiquement les rôles et le salon de vérification | `restrict_channels` (boolean), `post_message` (boolean) | Administrator |
-| `/antiraid approve` | `approve` | Vérifier manuellement un membre | `user`* (user) | ModerateMembers |
-| `/antiraid joins` | `joins` | Arrivées récentes et comptes suspects | `limit` (integer) | ModerateMembers |
-| `/antiraid whitelist` | `whitelist` | Exempter (ou non) un utilisateur de l'anti-raid | `user`* (user), `mode` (choice) | ManageGuild |
-| `/antiraid quarantine add` | `quarantine_add` | Mettre un membre en quarantaine | `user`* (user), `reason` (string), `duration` (duration) | ModerateMembers |
-| `/antiraid quarantine release` | `quarantine_release` | Libérer un membre de la quarantaine | `user`* (user) | ModerateMembers |
-| `/antiraid quarantine list` | `quarantine_list` | Lister les membres en quarantaine | — | ModerateMembers |
-| `/antiraid blacklist add` | `blacklist_add` | Ajouter un utilisateur à la liste noire globale | `user`* (user), `reason`* (string), `ban_now` (boolean) | BanMembers |
-| `/antiraid blacklist remove` | `blacklist_remove` | Retirer un utilisateur de la liste noire globale | `user`* (user) | BanMembers |
-| `/antiraid blacklist check` | `blacklist_check` | Vérifier si un utilisateur est sur la liste noire globale | `user`* (user) | BanMembers |
-| `/antiraid blacklist list` | `blacklist_list` | Lister la liste noire globale | `limit` (integer) | BanMembers |
-
-**Vues du panel** : Arrivées récentes, Quarantaine, Liste noire globale
-
-
-## 🤖 Auto-modération <a id="automod"></a>
-
-`automod` — Anti-spam, anti-invite, anti-lien, mots interdits, majuscules, zalgo, liens d'affiliation, fichiers dangereux, anti-phishing, NSFW par IA, slowmode dynamique et règles AutoMod natives. 
-
-**Paramètres (14)** : `logChannel` (channel) — Salon des logs · `rules` (json) — Configuration des règles · `bannedWords` (list) — Mots interdits · `linkWhitelist` (list) — Domaines autorisés (anti-lien) · `blockedExtensions` (list) — Extensions de fichiers bloquées · `affiliateParams` (list) — Paramètres d'affiliation supplémentaires · `ignoredChannels` (list) — Salons ignorés (toutes règles) · `ignoredRoles` (list) — Rôles ignorés (toutes règles) · `bypassStaff` (boolean, défaut `true`) — Le staff est exempté · `notifyUser` (boolean, défaut `true`) — Prévenir l'auteur · `notifyTemplate` (text, défaut `{user.mention}, votre message a été supp`) — Modèle du message d'avertissement · `safeBrowsingKey` (string) — Clé Google Safe Browsing v4 · `sightengineUser` (string) — Sightengine — api_user · `sightengineSecret` (string) — Sightengine — api_secret
-
-| Commande | Action | Description | Paramètres | Permissions |
-|---|---|---|---|---|
-| `/automod status` | `status` | État de l'auto-modération et de chaque règle | — | ManageMessages |
-| `/automod enable` | `enable` | Activer une règle | `rule`* (choice) | ManageGuild |
-| `/automod disable` | `disable` | Désactiver une règle | `rule`* (choice) | ManageGuild |
-| `/automod set` | `set` | Modifier un réglage d'une règle (action, seuil…) | `rule`* (choice), `key`* (string), `value`* (string) | ManageGuild |
-| `/automod words add` | `words_add` | Ajouter un mot interdit (jokers * ou /regex/) | `word`* (string) | ManageGuild |
-| `/automod words remove` | `words_remove` | Retirer un mot interdit | `word`* (string) | ManageGuild |
-| `/automod words list` | `words_list` | Lister les mots interdits | — | ManageMessages |
-| `/automod whitelist add` | `whitelist_add` | Autoriser un domaine (règle anti-lien) | `domain`* (string) | ManageGuild |
-| `/automod whitelist remove` | `whitelist_remove` | Retirer un domaine de la liste blanche | `domain`* (string) | ManageGuild |
-| `/automod whitelist list` | `whitelist_list` | Lister les domaines autorisés | — | ManageMessages |
-| `/automod ignore channel` | `ignore_channel` | Ignorer / réintégrer un salon (toutes règles ou une seule) | `channel`* (channel), `mode` (choice), `rule` (choice) | ManageGuild |
-| `/automod ignore role` | `ignore_role` | Ignorer / réintégrer un rôle (toutes règles ou une seule) | `role`* (role), `mode` (choice), `rule` (choice) | ManageGuild |
-| `/automod test` | `test` | Analyser un texte et indiquer les règles qui se déclencheraient | `text`* (text) | ManageMessages |
-| `/automod native create` | `native_create` | Créer une règle AutoMod native Discord | `type`* (choice), `name` (string), `keywords` (list), `regex` (list), `mention_limit` (integer), `action` (choice), `timeout_duration` (duration), `alert_channel` (channel) | ManageGuild |
-| `/automod native list` | `native_list` | Lister les règles AutoMod natives du serveur | — | ManageGuild |
-| `/automod native delete` | `native_delete` | Supprimer une règle AutoMod native | `rule_id`* (string) | ManageGuild |
-| `/automod stats` | `stats` | Statistiques des déclenchements | `days` (integer) | ManageMessages |
-| `/automod hits` | `hits` | Derniers déclenchements | `rule` (choice), `user` (user), `limit` (integer) | ManageMessages |
-| `/automod refresh` | `phishing_refresh` | Rafraîchir la liste noire anti-phishing | — | ManageGuild |
-
-**Vues du panel** : Déclenchements
-
-
 # Communauté
+
+## 📊 Analytique <a id="analytics"></a>
+
+`analytics` — Tableaux de bord d'activité : messages, membres actifs, croissance, heatmap, rétention, commandes, modération, rapports automatiques. 
+
+**Paramètres (4)** : `timezone` (string, défaut `Europe/Paris`) — Fuseau horaire des statistiques · `ignoredChannels` (list) — Salons ignorés · `countBots` (boolean, défaut `false`) — Compter les messages des bots · `trackEmojis` (boolean, défaut `true`) — Compter les emojis utilisés
+
+| Commande | Action | Description | Paramètres | Permissions |
+|---|---|---|---|---|
+| `/analytics overview` | `overview` | Vue d'ensemble : messages, actifs, arrivées/départs, rétention | `jours` (integer) | ManageGuild |
+| `/analytics heatmap` | `heatmap` | Heatmap d'activité (jours × heures) en image | `jours` (integer) | ManageGuild |
+| `/analytics growth` | `growth` | Courbe des membres (arrivées − départs) en image | `jours` (integer) | ManageGuild |
+| `/analytics channels` | `channels` | Salons les plus actifs | `jours` (integer), `limite` (integer) | ManageGuild |
+| `/analytics users` | `users` | Membres les plus actifs | `jours` (integer), `limite` (integer) | ManageGuild |
+| `/analytics emojis` | `emojis` | Emojis les plus utilisés | `jours` (integer) | ManageGuild |
+| `/analytics commands` | `commands` | Usage des actions du bot (audit) : top et par source | `jours` (integer) | ManageGuild |
+| `/analytics moderation` | `moderation` | Cas de modération par semaine | `semaines` (integer) | ManageGuild |
+| `/analytics hours` | `hours` | Heures les plus actives | `jours` (integer) | ManageGuild |
+| `/analytics retention` | `retention` | Rétention : membres arrivés il y a N jours encore présents | `jours` (integer) | ManageGuild |
+| `/analytics export` | `export` | Exporter les statistiques quotidiennes en CSV | `jours` (integer) | ManageGuild |
+| `/analytics compare` | `compare` | Comparer deux périodes (7j, 30j, 7j@7j, 2026-09, 2026-09-01..2026-09-15) | `periode1`* (string), `periode2` (string) | ManageGuild |
+| `/analytics report schedule` | `report_schedule` | Programmer un rapport automatique | `salon`* (channel), `frequence` (choice), `jour` (choice), `heure` (integer) | ManageGuild |
+| `/analytics report stop` | `report_stop` | Arrêter le rapport automatique | — | ManageGuild |
+| `/analytics report status` | `report_status` | Voir le rapport programmé | — | ManageGuild |
+| `/analytics report now` | `report_now` | Envoyer un rapport maintenant | `salon` (channel), `frequence` (choice) | ManageGuild |
+
+**Vues du panel** : Vue d'ensemble (7 jours)
+
+
+## 📝 Candidatures <a id="applications"></a>
+
+`applications` — Formulaires de candidature et questionnaires (modals paginés), revue avec boutons, rôles à l'acceptation, exports CSV et avis sur le serveur. 
+
+**Paramètres (11)** : `defaultReviewChannel` (channel) — Salon de revue par défaut · `reviewerRoles` (list) — Rôles examinateurs · `logChannel` (channel) — Salon des logs · `dmResults` (boolean, défaut `true`) — Prévenir le candidat par MP · `requireDenyReason` (boolean, défaut `false`) — Raison obligatoire pour un refus · `reapplyCooldown` (duration, défaut `0`) — Délai avant de recandidater après un refus · `acceptMessage` (text, défaut `Bonne nouvelle ! Votre candidature **{fo`) — Message d'acceptation (MP) · `denyMessage` (text, défaut `Votre candidature **{form}** sur **{serv`) — Message de refus (MP) · `feedbackChannel` (channel) — Salon des avis · `feedbackAnonymous` (boolean, défaut `true`) — Avis anonymes · `feedbackCooldown` (duration, défaut `7d`) — Délai entre deux avis d'un même membre
+
+| Commande | Action | Description | Paramètres | Permissions |
+|---|---|---|---|---|
+| `/apply form create` | `form_create` | Créer un formulaire de candidature | `nom`* (string), `description` (text), `anonyme` (boolean) | ManageGuild |
+| `/apply form list` | `form_list` | Lister les formulaires | — | Tous |
+| `/apply form info` | `form_info` | Détails d'un formulaire | `form`* (string) | Tous |
+| `/apply form delete` | `form_delete` | Supprimer un formulaire et ses candidatures | `form`* (string), `garder_reponses` (boolean) | ManageGuild |
+| `/apply form toggle` | `form_toggle` | Ouvrir / fermer un formulaire | `form`* (string) | ManageGuild |
+| `/apply form setrole` | `form_setrole` | Rôle attribué quand une candidature est acceptée | `form`* (string), `role` (role) | ManageGuild, ManageRoles |
+| `/apply form setchannel` | `form_setchannel` | Salon où arrivent les candidatures à examiner | `form`* (string), `salon` (channel) | ManageGuild |
+| `/apply form setpingrole` | `form_setpingrole` | Rôle mentionné à chaque nouvelle candidature | `form`* (string), `role` (role) | ManageGuild |
+| `/apply form config` | `form_config` | Options d'un formulaire (anonymat, MP, délai, messages) | `form`* (string), `anonyme` (boolean), `mp_resultat` (boolean), `delai` (duration), `description` (text), `message_accepte` (text), `message_refuse` (text) | ManageGuild |
+| `/apply form post` | `form_post` | Publier le message avec le bouton « Candidater » | `form`* (string), `salon` (channel), `message` (text) | ManageGuild |
+| `/apply question add` | `question_add` | Ajouter une question à un formulaire | `form`* (string), `question`* (string), `type` (choice), `obligatoire` (boolean), `choix` (list), `aide` (string), `max` (integer) | ManageGuild |
+| `/apply question list` | `question_list` | Lister les questions d'un formulaire | `form`* (string) | Tous |
+| `/apply question remove` | `question_remove` | Retirer une question (par numéro) | `form`* (string), `numero`* (integer) | ManageGuild |
+| `/apply question move` | `question_move` | Déplacer une question | `form`* (string), `numero`* (integer), `position`* (integer) | ManageGuild |
+| `/apply start` | `start` | Remplir un formulaire de candidature | `form`* (string) | Tous |
+| `/apply submit` | `submit` | Envoyer une candidature avec les réponses en JSON (API / CLI) | `form`* (string), `reponses`* (json), `membre` (user) | Tous |
+| `/apply withdraw` | `withdraw` | Retirer votre candidature en cours | `form`* (string) | Tous |
+| `/apply list` | `list` | Lister les candidatures (les vôtres si vous n'êtes pas examinateur) | `form` (string), `status` (choice), `page` (integer) | Tous |
+| `/apply view` | `view` | Voir une candidature | `id`* (integer) | Tous |
+| `/apply review` | `review` | Accepter, refuser ou mettre en attente une candidature | `id`* (integer), `decision`* (choice), `raison` (text) | Tous |
+| `/apply reopen` | `reopen` | Rouvrir une candidature traitée | `id`* (integer), `retirer_role` (boolean) | Tous |
+| `/apply stats` | `stats` | Statistiques des candidatures | `form` (string) | Tous |
+| `/apply export` | `export` | Exporter les candidatures d'un formulaire en CSV | `form`* (string), `status` (choice) | Tous |
+| `/apply feedback give` | `feedback_give` | Donner votre avis sur le serveur (note 1-5 + commentaire) | `note` (integer), `commentaire` (text) | Tous |
+| `/apply feedback stats` | `feedback_stats` | Statistiques des avis sur le serveur | `jours` (integer) | Tous |
+
+**Vues du panel** : Formulaires, Candidatures
+
 
 ## 🎂 Anniversaires <a id="birthday"></a>
 
@@ -580,6 +692,45 @@ Chaque action est disponible en commande slash, via l'API (`POST /api/guilds/:id
 | `/birthday announce` | `birthday_announce` | Lancer maintenant l'annonce des anniversaires du jour | `force` (boolean) | ManageGuild |
 
 **Vues du panel** : Anniversaires
+
+
+## 📅 Évènements <a id="events"></a>
+
+`events` — Évènements Discord planifiés, rappels, rôles d'évènement, récurrences, modèles, compte à rebours, calendrier, export ICS et RSVP. 
+
+**Paramètres (11)** : `timezone` (string, défaut `Europe/Paris`) — Fuseau horaire · `reminders` (list) — Rappels avant le début · `reminderChannel` (channel) — Salon des rappels · `reminderPingRole` (role) — Rôle mentionné dans les rappels · `mentionSubscribers` (boolean, défaut `false`) — Mentionner les inscrits dans le rappel · `dmSubscribers` (boolean, défaut `false`) — Envoyer le rappel en MP aux inscrits · `reminderTemplate` (text, défaut `{mentions} ⏰ **{event.name}** commence {`) — Modèle du rappel · `announceChannel` (channel) — Salon d'annonce par défaut · `defaultDuration` (duration, défaut `2h`) — Durée par défaut (évènements externes) · `recurringLead` (duration, défaut `3d`) — Création anticipée des récurrences · `logChannel` (channel) — Salon des logs
+
+| Commande | Action | Description | Paramètres | Permissions |
+|---|---|---|---|---|
+| `/events create` | `create` | Créer un évènement Discord planifié | `nom`* (string), `date`* (string), `fin` (string), `salon` (channel), `lieu` (string), `description` (text), `image` (string) | ManageEvents |
+| `/events list` | `list` | Lister les évènements du serveur | `statut` (choice) | Tous |
+| `/events info` | `info` | Détails d'un évènement | `id`* (string) | Tous |
+| `/events edit` | `edit` | Modifier un évènement | `id`* (string), `nom` (string), `date` (string), `fin` (string), `salon` (channel), `lieu` (string), `description` (text), `image` (string) | ManageEvents |
+| `/events cancel` | `cancel` | Annuler (ou supprimer) un évènement | `id`* (string), `raison` (string), `supprimer` (boolean) | ManageEvents |
+| `/events start` | `start` | Démarrer un évènement maintenant | `id`* (string) | ManageEvents |
+| `/events end` | `end` | Terminer un évènement en cours | `id`* (string) | ManageEvents |
+| `/events interested` | `interested` | Liste des membres intéressés par un évènement | `id`* (string) | Tous |
+| `/events role` | `role` | Rôle temporaire donné aux inscrits (retiré à la fin) | `id`* (string), `role` (role), `retirer` (boolean) | ManageRoles, ManageEvents |
+| `/events countdown` | `countdown` | Compte à rebours (salon vocal renommé ou message mis à jour) | `id`* (string), `salon`* (channel), `libelle` (string) | ManageEvents |
+| `/events calendar` | `calendar` | Calendrier mensuel des évènements (texte + image) | `mois` (string) | Tous |
+| `/events ics` | `ics` | Exporter les évènements au format iCalendar (.ics) | `id` (string) | Tous |
+| `/events announce` | `announce` | Annoncer un évènement dans un salon | `id`* (string), `salon` (channel), `message` (text), `mention` (role) | ManageEvents |
+| `/events recurring add` | `recurring_add` | Créer un évènement récurrent (cron ou intervalle) | `nom`* (string), `mode`* (choice), `regle`* (string), `debut` (string), `duree` (duration), `salon` (channel), `lieu` (string), `description` (text), `image` (string), `avance` (duration) | ManageEvents |
+| `/events recurring list` | `recurring_list` | Lister les évènements récurrents | — | Tous |
+| `/events recurring toggle` | `recurring_toggle` | Mettre en pause / reprendre une récurrence | `id`* (integer) | ManageEvents |
+| `/events recurring remove` | `recurring_remove` | Supprimer une récurrence | `id`* (integer) | ManageEvents |
+| `/events template save` | `template_save` | Enregistrer un modèle (depuis un évènement ou des paramètres) | `nom`* (string), `id` (string), `titre` (string), `description` (text), `salon` (channel), `lieu` (string), `duree` (duration), `image` (string) | ManageEvents |
+| `/events template use` | `template_use` | Créer un évènement depuis un modèle | `nom`* (string), `date`* (string), `titre` (string) | ManageEvents |
+| `/events template list` | `template_list` | Lister les modèles | — | Tous |
+| `/events template delete` | `template_delete` | Supprimer un modèle | `nom`* (string) | ManageEvents |
+| `/events rsvp create` | `rsvp_create` | Créer un RSVP interne avec boutons Participe / Peut-être / Non | `titre`* (string), `date`* (string), `salon` (channel), `fin` (string), `description` (text), `lieu` (string), `max` (integer) | ManageEvents |
+| `/events rsvp answer` | `rsvp_answer` | Répondre à un RSVP | `id`* (string), `statut`* (choice), `membre` (user) | Tous |
+| `/events rsvp view` | `rsvp_view` | Voir un RSVP et ses réponses | `id`* (string) | Tous |
+| `/events rsvp list` | `rsvp_list` | Lister les RSVP | `tous` (boolean) | Tous |
+| `/events rsvp close` | `rsvp_close` | Clôturer / rouvrir un RSVP | `id`* (string) | ManageEvents |
+| `/events rsvp delete` | `rsvp_delete` | Supprimer un RSVP | `id`* (string) | ManageEvents |
+
+**Vues du panel** : Évènements Discord, Récurrences, RSVP
 
 
 ## 🎉 Giveaways <a id="giveaways"></a>
@@ -667,6 +818,65 @@ Chaque action est disponible en commande slash, via l'API (`POST /api/guilds/:id
 **Vues du panel** : Classement, Rôles récompenses, Boosts d'XP, Succès
 
 
+## 🧭 Accueil & FAQ <a id="onboarding"></a>
+
+`onboarding` — Règlement avec acceptation, messages d'accueil différés, guide du serveur, FAQ avec réponse automatique et présentations. 
+
+**Paramètres (18)** : `rulesTitle` (string, défaut `📜 Règlement`) — Titre du règlement · `rulesText` (text, défaut ``) — Texte du règlement · `rulesEmbed` (json) — Embed du règlement (JSON, prioritaire) · `acceptedRole` (role) — Rôle donné à l'acceptation · `removeRoleOnAccept` (role) — Rôle retiré à l'acceptation (ex : Non vérifié) · `acceptButtonLabel` (string, défaut `J'accepte`) — Texte du bouton · `rulesChannel` (channel) — Salon du règlement · `rulesMessageId` (string) — ID du message de règlement publié · `dripEnabled` (boolean, défaut `true`) — Messages différés actifs · `guideIntro` (text, défaut `Bienvenue sur **{server.name}** ! Voici `) — Introduction du guide · `guideChannels` (list) — Salons importants · `guideRoles` (list) — Rôles présentés · `autoAnswer` (boolean, défaut `false`) — Réponse automatique de la FAQ · `autoAnswerChannels` (list) — Salons de réponse auto (vide = tous) · `autoAnswerThreshold` (number, défaut `0.6`) — Score minimal (0-1) · `autoAnswerCooldown` (duration, défaut `10m`) — Cooldown par question et salon · `introChannel` (channel) — Salon des présentations · `introRole` (role) — Rôle « Présenté »
+
+| Commande | Action | Description | Paramètres | Permissions |
+|---|---|---|---|---|
+| `/onboarding rules set` | `rules_set` | Définir le règlement (texte ou embed JSON) | `texte` (text), `embed` (json), `titre` (string) | ManageGuild |
+| `/onboarding rules show` | `rules_show` | Prévisualiser le règlement | — | Tous |
+| `/onboarding rules post` | `rules_post` | Publier le règlement avec le bouton « J'accepte » | `salon`* (channel), `role` (role) | ManageGuild |
+| `/onboarding drip add` | `drip_add` | Ajouter un message d'accueil différé (J+1, J+3…) | `delai`* (duration), `message`* (text), `cible` (choice), `salon` (channel), `embed` (boolean) | ManageGuild |
+| `/onboarding drip list` | `drip_list` | Lister les messages différés | — | ManageGuild |
+| `/onboarding drip remove` | `drip_remove` | Supprimer un message différé | `id`* (integer) | ManageGuild |
+| `/onboarding drip test` | `drip_test` | Recevoir un message différé en MP pour le tester | `id` (integer) | ManageGuild |
+| `/onboarding guide set` | `guide_set` | Configurer le guide du serveur | `intro` (text), `salons` (list), `roles` (list) | ManageGuild |
+| `/onboarding guide show` | `guide_show` | Afficher (ou publier) le guide du serveur | `publier` (channel) | Tous |
+| `/onboarding intro channel` | `intro_channel` | Configurer le salon de présentation (bouton + formulaire) | `salon`* (channel), `role` (role), `texte` (text) | ManageGuild |
+| `/onboarding welcomer stats` | `welcomer_stats` | Statistiques d'accueil (taux d'acceptation, présentations) | `jours` (integer) | ManageGuild |
+| `/onboarding faq add` | `faq_add` | Ajouter une question à la FAQ | `question`* (string), `reponse`* (text), `mots_cles` (list) | ManageMessages |
+| `/onboarding faq edit` | `faq_edit` | Modifier une entrée de la FAQ | `id`* (integer), `question` (string), `reponse` (text), `mots_cles` (list) | ManageMessages |
+| `/onboarding faq get` | `faq_get` | Afficher une réponse de la FAQ | `id`* (integer), `membre` (user) | Tous |
+| `/onboarding faq search` | `faq_search` | Rechercher dans la FAQ | `recherche`* (string) | Tous |
+| `/onboarding faq list` | `faq_list` | Lister les questions de la FAQ | — | Tous |
+| `/onboarding faq remove` | `faq_remove` | Supprimer une entrée de la FAQ | `id`* (integer) | ManageMessages |
+
+**Vues du panel** : Messages différés, FAQ
+
+
+## 🤝 Partenariats <a id="partners"></a>
+
+`partners` — Gestion des partenariats (exigences, publication, vérification des invitations), rappels de bump DISBOARD et publicité du serveur. 
+
+**Paramètres (22)** : `partnerChannel` (channel) — Salon des partenariats · `partnerTemplate` (text, défaut `{partner.description}
+
+👥 **{partner.mem`) — Modèle de l'embed · `postContent` (string) — Texte au-dessus de l'embed (optionnel) · `embedColor` (color, défaut `#5865F2`) — Couleur de l'embed · `autoPost` (boolean, défaut `true`) — Publier automatiquement à l'ajout · `deleteOldPost` (boolean, défaut `true`) — Supprimer l'ancienne publication en republiant · `scheduleInterval` (duration) — Intervalle de republication / rappel · `scheduleMode` (choice, défaut `reminder`) — Mode de la planification · `reminderChannel` (channel) — Salon des rappels staff · `minMembers` (integer, défaut `0`) — Membres minimum · `minServerAgeDays` (integer, défaut `0`) — Âge minimum du serveur (jours) · `requirePermanentInvite` (boolean, défaut `true`) — Invitation permanente requise · `requireRepresentative` (boolean, défaut `false`) — Représentant requis · `autoCheck` (boolean, défaut `true`) — Vérifier les invitations chaque jour · `bumpReminder` (boolean, défaut `true`) — Rappel de bump DISBOARD · `bumpChannel` (channel) — Salon du rappel (défaut : salon du bump) · `bumpRole` (role) — Rôle à mentionner · `bumpDelay` (duration, défaut `2h`) — Délai avant rappel · `bumpMessage` (text, défaut `⏰ {role} Il est l'heure de **bumper** le`) — Message de rappel · `bumpThanks` (text, défaut `💖 Merci {user.mention} pour le bump ! (`) — Remerciement (vide = aucun) · `adText` (text, défaut ``) — Notre publicité · `adInvite` (string) — Notre invitation
+
+| Commande | Action | Description | Paramètres | Permissions |
+|---|---|---|---|---|
+| `/partners add` | `add` | Ajouter un partenaire | `nom`* (string), `invite`* (string), `description`* (text), `representant` (user), `salon` (channel), `ignorer_exigences` (boolean) | ManageGuild |
+| `/partners edit` | `edit` | Modifier un partenaire | `id`* (integer), `nom` (string), `description` (text), `invite` (string), `representant` (user), `salon` (channel) | ManageGuild |
+| `/partners remove` | `remove` | Supprimer un partenaire | `id`* (integer), `supprimer_message` (boolean) | ManageGuild |
+| `/partners list` | `list` | Lister les partenaires | — | Tous |
+| `/partners info` | `info` | Détails d'un partenaire | `id`* (integer) | Tous |
+| `/partners post` | `post` | Publier l'embed d'un partenaire | `id`* (integer), `salon` (channel) | ManageGuild |
+| `/partners verify` | `verify` | Vérifier une invitation face aux exigences (sans l'ajouter) | `invite`* (string) | ManageGuild |
+| `/partners check` | `check` | Vérifier la validité des invitations partenaires | — | ManageGuild |
+| `/partners schedule` | `schedule` | Rappel ou republication périodique des partenariats | `intervalle` (duration), `mode` (choice), `salon` (channel) | ManageGuild |
+| `/partners requirements set` | `requirements_set` | Définir les exigences de partenariat | `membres_min` (integer), `age_min_jours` (integer), `invitation_permanente` (boolean), `representant_requis` (boolean) | ManageGuild |
+| `/partners requirements show` | `requirements_show` | Afficher les exigences de partenariat | — | Tous |
+| `/partners bump setup` | `bump_setup` | Configurer le rappel de bump DISBOARD | `actif`* (boolean), `salon` (channel), `role` (role) | ManageGuild |
+| `/partners bump status` | `bump_status` | État du bump (dernier bump, prochain rappel) | — | Tous |
+| `/partners bump stats` | `bump_stats` | Classement des bumpeurs | `periode` (choice) | Tous |
+| `/partners ad set` | `ad_set` | Définir la publicité de notre serveur | `texte`* (text), `invitation` (string) | ManageGuild |
+| `/partners ad show` | `ad_show` | Afficher notre publicité (prête à copier) | — | Tous |
+
+**Vues du panel** : Partenaires, Bumps, Classement des bumpeurs
+
+
 ## 📊 Sondages <a id="polls"></a>
 
 `polls` — Sondages à boutons ou choix multiples, résultats en temps réel (barres + graphique), anonymes ou nominatifs, export CSV, sondages natifs Discord. 
@@ -724,6 +934,49 @@ Chaque action est disponible en commande slash, via l'API (`POST /api/guilds/:id
 | `/reactionroles refresh` | `rr_refresh` | Réafficher un panneau (renvoie le message s'il a été supprimé) | `panel`* (integer), `resend` (boolean) | ManageRoles |
 
 **Vues du panel** : Panneaux de rôles
+
+
+## 💞 Social <a id="social"></a>
+
+`social` — Profils personnalisés (carte image), réputation, likes, mariages, amis, badges, cadeaux, câlins et classements. 
+
+**Paramètres (11)** : `repCooldown` (duration, défaut `12h`) — Délai entre deux points de réputation donnés · `repSameUserCooldown` (duration, défaut `24h`) — Délai avant de réputer le même membre · `anniversaryChannel` (channel) — Salon des anniversaires de mariage · `anniversaryTemplate` (text, défaut `💍 Joyeux anniversaire de mariage à {a} `) — Message d'anniversaire de mariage · `marriageAnnounce` (boolean, défaut `true`) — Annoncer les mariages dans le salon des anniversaires · `interactionGifs` (boolean, défaut `true`) — GIF animés pour câlins / pat / high five / poke · `allowSelfInteractions` (boolean, défaut `false`) — Autoriser les interactions avec soi-même · `maxFriends` (integer, défaut `100`) — Nombre maximum d'amis · `maxBioLength` (integer, défaut `300`) — Longueur maximale de la bio · `defaultColor` (color, défaut `#5865f2`) — Couleur de profil par défaut · `profileImage` (boolean, défaut `true`) — Générer la carte de profil en image
+
+| Commande | Action | Description | Paramètres | Permissions |
+|---|---|---|---|---|
+| `/social profile` | `profile` | Afficher le profil d'un membre (carte image) | `user` (user) | Tous |
+| `/social bio set` | `bio_set` | Définir votre bio | `texte`* (text) | Tous |
+| `/social bio clear` | `bio_clear` | Effacer votre bio | — | Tous |
+| `/social color` | `color` | Couleur de votre profil | `couleur` (color) | Tous |
+| `/social timezone` | `timezone` | Définir votre fuseau ou voir l'heure locale d'un membre | `fuseau` (string), `user` (user) | Tous |
+| `/social pronouns` | `pronouns` | Définir vos pronoms | `pronoms` (string) | Tous |
+| `/social quote` | `quote` | Citation affichée sur votre profil | `citation` (string) | Tous |
+| `/social socials set` | `socials_set` | Ajouter un réseau à votre profil | `reseau`* (choice), `lien`* (string) | Tous |
+| `/social socials remove` | `socials_remove` | Retirer un réseau de votre profil | `reseau`* (choice) | Tous |
+| — | `profile_reset` | Réinitialiser le profil d'un membre (modération) | `user`* (user) | ManageGuild |
+| `/social rep user` | `rep_give` | Donner +1 de réputation à un membre | `user`* (user), `raison` (string) | Tous |
+| `/social rep top` | `rep_top` | Classement de la réputation | `jours` (integer) | Tous |
+| `/social rep history` | `rep_history` | Derniers points de réputation reçus | `user` (user) | Tous |
+| `/social like` | `like` | Liker (ou ne plus liker) le profil d'un membre | `user`* (user) | Tous |
+| `/social marry` | `marry` | Demander un membre en mariage (ou accepter sa demande) | `user`* (user) | Tous |
+| `/social divorce` | `divorce` | Divorcer 💔 | — | Tous |
+| `/social partner` | `partner` | Voir le ou la partenaire d'un membre | `user` (user) | Tous |
+| `/social badge create` | `badge_create` | Créer un badge | `nom`* (string), `emoji`* (string), `description` (string) | ManageGuild |
+| `/social badge delete` | `badge_delete` | Supprimer un badge | `badge`* (string) | ManageGuild |
+| `/social badge give` | `badge_give` | Donner un badge à un membre | `badge`* (string), `user`* (user) | ManageGuild |
+| `/social badge remove` | `badge_remove` | Retirer un badge à un membre | `badge`* (string), `user`* (user) | ManageGuild |
+| `/social badge list` | `badge_list` | Lister les badges (du serveur ou d'un membre) | `user` (user) | Tous |
+| `/social friend add` | `friend_add` | Envoyer (ou accepter) une demande d'ami | `user`* (user) | Tous |
+| `/social friend remove` | `friend_remove` | Retirer un ami (ou annuler / refuser une demande) | `user`* (user) | Tous |
+| `/social friend list` | `friend_list` | Liste d'amis | `user` (user) | Tous |
+| `/social gift` | `gift` | Offrir un cadeau virtuel (emoji + message) | `user`* (user), `emoji`* (string), `message` (string) | Tous |
+| `/social top` | `top` | Classements sociaux | `type` (choice), `limite` (integer) | Tous |
+| `/social hug` | `hug` | 🤗 Câlin à un membre | `user`* (user) | Tous |
+| `/social pat` | `pat` | 🫳 Caresse à un membre | `user`* (user) | Tous |
+| `/social highfive` | `highfive` | 🙌 High five à un membre | `user`* (user) | Tous |
+| `/social poke` | `poke` | 👉 Poke à un membre | `user`* (user) | Tous |
+
+**Vues du panel** : Profils, Badges
 
 
 ## ⭐ Starboard <a id="starboard"></a>
@@ -859,6 +1112,49 @@ Chaque action est disponible en commande slash, via l'API (`POST /api/guilds/:id
 **Vues du panel** : Tickets, Statistiques du staff, Catégories
 
 
+## 🔊 Vocal <a id="voice"></a>
+
+`voice` — Gestion des salons vocaux : déplacements et mutes de masse, rôles vocaux automatiques, statistiques de temps en vocal, journal, conférences, activités, heures calmes. 
+
+**Paramètres (5)** : `logChannel` (channel) — Salon du journal vocal · `trackSessions` (boolean, défaut `true`) — Enregistrer le temps passé en vocal · `ignoreAfk` (boolean, défaut `true`) — Ignorer le salon AFK dans les statistiques · `timezone` (string, défaut `Europe/Paris`) — Fuseau horaire (heures calmes) · `defaultInviteDuration` (string, défaut `1h`) — Durée par défaut de /vc invite
+
+| Commande | Action | Description | Paramètres | Permissions |
+|---|---|---|---|---|
+| `/vc list` | `list` | Qui est dans quel salon vocal | — | Tous |
+| `/vc moveall` | `moveall` | Déplacer tous les membres d'un salon vers un autre | `de`* (channel), `vers`* (channel) | MoveMembers |
+| `/vc muteall` | `muteall` | Rendre muets tous les membres d'un salon | `salon`* (channel), `sauf_moi` (boolean) | MuteMembers |
+| `/vc unmuteall` | `unmuteall` | Rétablir le micro de tous les membres d'un salon | `salon`* (channel) | MuteMembers |
+| `/vc deafall` | `deafall` | Mettre en sourdine tous les membres d'un salon | `salon`* (channel), `sauf_moi` (boolean) | DeafenMembers |
+| `/vc undeafall` | `undeafall` | Retirer la sourdine de tous les membres d'un salon | `salon`* (channel) | DeafenMembers |
+| `/vc disconnectall` | `disconnectall` | Déconnecter tous les membres d'un salon | `salon`* (channel), `sauf_moi` (boolean) | MoveMembers |
+| `/vc kick` | `kick` | Déconnecter un membre du vocal | `membre`* (user), `raison` (string) | MoveMembers |
+| `/vc move` | `move` | Déplacer un membre vers un salon vocal | `membre`* (user), `salon`* (channel) | MoveMembers |
+| `/vc afkmove` | `afkmove` | Envoyer un membre dans le salon AFK | `membre`* (user) | MoveMembers |
+| `/vc limit` | `limit` | Limite de membres d'un salon (0 = illimité) | `salon`* (channel), `nombre`* (integer) | ManageChannels |
+| `/vc bitrate` | `bitrate` | Débit audio d'un salon (kb/s) | `salon`* (channel), `kbps`* (integer) | ManageChannels |
+| `/vc region` | `region` | Région du serveur vocal d'un salon | `salon`* (channel), `region`* (choice) | ManageChannels |
+| `/vc lock` | `lock` | Verrouiller un salon vocal (plus personne ne peut rejoindre) | `salon`* (channel), `garder_presents` (boolean) | ManageChannels |
+| `/vc unlock` | `unlock` | Déverrouiller un salon vocal | `salon`* (channel) | ManageChannels |
+| `/vc invite` | `invite` | Autoriser temporairement un membre à rejoindre un salon | `membre`* (user), `salon`* (channel), `duree` (duration) | ManageChannels |
+| `/vc stats` | `stats` | Temps passé en vocal | `membre` (user), `periode` (choice) | Tous |
+| `/vc top` | `top` | Classement du temps passé en vocal | `periode` (choice) | Tous |
+| `/vc priority` | `priority` | Donner / retirer la voix prioritaire à un membre | `membre`* (user), `salon` (channel), `retirer` (boolean) | ManageChannels |
+| `/vc activity` | `activity` | Lancer une activité Discord (YouTube, Poker, Échecs…) dans un salon | `salon`* (channel), `application`* (choice) | Tous |
+| `/vc voicerole set` | `voicerole_set` | Attribuer un rôle aux membres en vocal (un salon ou tous) | `role`* (role), `salon` (channel) | ManageRoles |
+| `/vc voicerole remove` | `voicerole_remove` | Supprimer une règle de rôle vocal | `role`* (role), `salon` (channel), `retirer_roles` (boolean) | ManageRoles |
+| `/vc voicerole list` | `voicerole_list` | Lister les rôles vocaux | — | Tous |
+| `/vc log set` | `log_set` | Définir le salon du journal vocal | `salon`* (channel) | ManageGuild |
+| `/vc log off` | `log_off` | Désactiver le journal vocal | — | ManageGuild |
+| `/vc stage start` | `stage_start` | Démarrer une conférence (salon de type conférence) | `salon`* (channel), `sujet`* (string), `notifier` (boolean) | ManageChannels |
+| `/vc stage end` | `stage_end` | Terminer une conférence | `salon`* (channel) | ManageChannels |
+| `/vc stage speaker` | `stage_speaker` | Faire monter (ou descendre) un membre sur scène | `membre`* (user), `retirer` (boolean) | MuteMembers |
+| `/vc schedule mute` | `schedule_mute` | Heures calmes : interdire de parler sur une plage horaire | `salon`* (channel), `debut`* (string), `fin`* (string), `muter_presents` (boolean) | ManageChannels |
+| `/vc schedule list` | `schedule_list` | Lister les heures calmes | — | Tous |
+| `/vc schedule remove` | `schedule_remove` | Supprimer une plage d'heures calmes | `id`* (integer) | ManageChannels |
+
+**Vues du panel** : Rôles vocaux, Heures calmes, Top vocal (30 j)
+
+
 ## 👋 Bienvenue <a id="welcome"></a>
 
 `welcome` — Messages de bienvenue et de départ, carte image, MP, autorôles, rôles persistants, paliers de membres et remerciements de boost. 
@@ -880,6 +1176,100 @@ Chaque action est disponible en commande slash, via l'API (`POST /api/guilds/:id
 | `/welcome status` | `welcome_status` | Résumé de la configuration de bienvenue | — | ManageGuild |
 
 **Vues du panel** : Autorôles, Rôles persistants mémorisés
+
+
+# Sécurité
+
+## 🛡️ Anti-raid <a id="antiraid"></a>
+
+`antiraid` — Détection de vagues d'arrivées, mode raid / panique, quarantaine des comptes récents, vérification captcha (Discord ou web) et liste noire globale. 
+
+**Paramètres (29)** : `logChannel` (channel) — Salon des logs · `alertChannel` (channel) — Salon des alertes raid · `alertRole` (role) — Rôle à mentionner lors d'une alerte · `joinThreshold` (integer, défaut `10`) — Seuil d'arrivées · `joinWindow` (integer, défaut `10`) — Fenêtre (secondes) · `raidDuration` (integer, défaut `10`) — Durée du mode raid (minutes) · `raidLockdown` (boolean, défaut `true`) — Verrouiller les salons pendant un raid · `raidVerificationLevel` (boolean, défaut `true`) — Augmenter le niveau de vérification du serveur · `raidAction` (choice, défaut `kick`) — Action sur les comptes arrivés pendant la vague · `quarantineEnabled` (boolean, défaut `false`) — Quarantaine automatique des comptes récents · `minAccountAgeHours` (integer, défaut `24`) — Âge minimum du compte (heures) · `quarantineRole` (role) — Rôle de quarantaine · `quarantineReleaseMinutes` (integer, défaut `0`) — Libération automatique (minutes) · `quarantineReleaseOnVerify` (boolean, défaut `true`) — Libérer la quarantaine après vérification · `verificationEnabled` (boolean, défaut `false`) — Vérification des nouveaux membres · `verificationMethod` (choice, défaut `emoji`) — Méthode · `unverifiedRole` (role) — Rôle « non vérifié » · `verifiedRole` (role) — Rôle « vérifié » · `verifyChannel` (channel) — Salon de vérification · `dmVerifyLink` (boolean, défaut `true`) — Envoyer les instructions en MP à l'arrivée · `verifyDmMessage` (text, défaut `Bienvenue sur **{server.name}** ! Pour a`) — Message de MP · `kickUnverifiedMinutes` (integer, défaut `0`) — Expulser si non vérifié après (minutes) · `vpnCheck` (boolean, défaut `false`) — Refuser VPN / proxy / hébergeurs (captcha web) · `verifiedWelcomeChannel` (channel) — Salon du message de bienvenue (après vérification) · `verifiedWelcomeMessage` (text, défaut ``) — Message de bienvenue vérifié · `enforceGlobalBlacklist` (boolean, défaut `true`) — Bannir automatiquement les comptes de la liste noire globale · `allowLocalAdditions` (boolean, défaut `false`) — Les admins du serveur peuvent alimenter la liste noire globale · `whitelist` (list) — Utilisateurs exemptés · `botsExempt` (boolean, défaut `true`) — Ignorer les bots
+
+| Commande | Action | Description | Paramètres | Permissions |
+|---|---|---|---|---|
+| `/verify` | `verify` | Se vérifier (captcha) pour accéder au serveur | — | Tous |
+| `/antiraid status` | `status` | État de l'anti-raid (raid en cours, quarantaine, vérification) | — | ModerateMembers |
+| `/antiraid config` | `config` | Voir ou modifier un paramètre de l'anti-raid | `key` (string), `value` (string) | ManageGuild |
+| `/antiraid panic` | `panic` | Activer manuellement le mode raid (panique) | `duration` (duration), `reason` (string), `action` (choice) | Administrator |
+| `/antiraid stop` | `stop` | Mettre fin au mode raid | `reason` (string) | Administrator |
+| `/antiraid setup` | `setup` | Créer / configurer automatiquement les rôles et le salon de vérification | `restrict_channels` (boolean), `post_message` (boolean) | Administrator |
+| `/antiraid approve` | `approve` | Vérifier manuellement un membre | `user`* (user) | ModerateMembers |
+| `/antiraid joins` | `joins` | Arrivées récentes et comptes suspects | `limit` (integer) | ModerateMembers |
+| `/antiraid whitelist` | `whitelist` | Exempter (ou non) un utilisateur de l'anti-raid | `user`* (user), `mode` (choice) | ManageGuild |
+| `/antiraid quarantine add` | `quarantine_add` | Mettre un membre en quarantaine | `user`* (user), `reason` (string), `duration` (duration) | ModerateMembers |
+| `/antiraid quarantine release` | `quarantine_release` | Libérer un membre de la quarantaine | `user`* (user) | ModerateMembers |
+| `/antiraid quarantine list` | `quarantine_list` | Lister les membres en quarantaine | — | ModerateMembers |
+| `/antiraid blacklist add` | `blacklist_add` | Ajouter un utilisateur à la liste noire globale | `user`* (user), `reason`* (string), `ban_now` (boolean) | BanMembers |
+| `/antiraid blacklist remove` | `blacklist_remove` | Retirer un utilisateur de la liste noire globale | `user`* (user) | BanMembers |
+| `/antiraid blacklist check` | `blacklist_check` | Vérifier si un utilisateur est sur la liste noire globale | `user`* (user) | BanMembers |
+| `/antiraid blacklist list` | `blacklist_list` | Lister la liste noire globale | `limit` (integer) | BanMembers |
+
+**Vues du panel** : Arrivées récentes, Quarantaine, Liste noire globale
+
+
+## 🤖 Auto-modération <a id="automod"></a>
+
+`automod` — Anti-spam, anti-invite, anti-lien, mots interdits, majuscules, zalgo, liens d'affiliation, fichiers dangereux, anti-phishing, NSFW par IA, slowmode dynamique et règles AutoMod natives. 
+
+**Paramètres (14)** : `logChannel` (channel) — Salon des logs · `rules` (json) — Configuration des règles · `bannedWords` (list) — Mots interdits · `linkWhitelist` (list) — Domaines autorisés (anti-lien) · `blockedExtensions` (list) — Extensions de fichiers bloquées · `affiliateParams` (list) — Paramètres d'affiliation supplémentaires · `ignoredChannels` (list) — Salons ignorés (toutes règles) · `ignoredRoles` (list) — Rôles ignorés (toutes règles) · `bypassStaff` (boolean, défaut `true`) — Le staff est exempté · `notifyUser` (boolean, défaut `true`) — Prévenir l'auteur · `notifyTemplate` (text, défaut `{user.mention}, votre message a été supp`) — Modèle du message d'avertissement · `safeBrowsingKey` (string) — Clé Google Safe Browsing v4 · `sightengineUser` (string) — Sightengine — api_user · `sightengineSecret` (string) — Sightengine — api_secret
+
+| Commande | Action | Description | Paramètres | Permissions |
+|---|---|---|---|---|
+| `/automod status` | `status` | État de l'auto-modération et de chaque règle | — | ManageMessages |
+| `/automod enable` | `enable` | Activer une règle | `rule`* (choice) | ManageGuild |
+| `/automod disable` | `disable` | Désactiver une règle | `rule`* (choice) | ManageGuild |
+| `/automod set` | `set` | Modifier un réglage d'une règle (action, seuil…) | `rule`* (choice), `key`* (string), `value`* (string) | ManageGuild |
+| `/automod words add` | `words_add` | Ajouter un mot interdit (jokers * ou /regex/) | `word`* (string) | ManageGuild |
+| `/automod words remove` | `words_remove` | Retirer un mot interdit | `word`* (string) | ManageGuild |
+| `/automod words list` | `words_list` | Lister les mots interdits | — | ManageMessages |
+| `/automod whitelist add` | `whitelist_add` | Autoriser un domaine (règle anti-lien) | `domain`* (string) | ManageGuild |
+| `/automod whitelist remove` | `whitelist_remove` | Retirer un domaine de la liste blanche | `domain`* (string) | ManageGuild |
+| `/automod whitelist list` | `whitelist_list` | Lister les domaines autorisés | — | ManageMessages |
+| `/automod ignore channel` | `ignore_channel` | Ignorer / réintégrer un salon (toutes règles ou une seule) | `channel`* (channel), `mode` (choice), `rule` (choice) | ManageGuild |
+| `/automod ignore role` | `ignore_role` | Ignorer / réintégrer un rôle (toutes règles ou une seule) | `role`* (role), `mode` (choice), `rule` (choice) | ManageGuild |
+| `/automod test` | `test` | Analyser un texte et indiquer les règles qui se déclencheraient | `text`* (text) | ManageMessages |
+| `/automod native create` | `native_create` | Créer une règle AutoMod native Discord | `type`* (choice), `name` (string), `keywords` (list), `regex` (list), `mention_limit` (integer), `action` (choice), `timeout_duration` (duration), `alert_channel` (channel) | ManageGuild |
+| `/automod native list` | `native_list` | Lister les règles AutoMod natives du serveur | — | ManageGuild |
+| `/automod native delete` | `native_delete` | Supprimer une règle AutoMod native | `rule_id`* (string) | ManageGuild |
+| `/automod stats` | `stats` | Statistiques des déclenchements | `days` (integer) | ManageMessages |
+| `/automod hits` | `hits` | Derniers déclenchements | `rule` (choice), `user` (user), `limit` (integer) | ManageMessages |
+| `/automod refresh` | `phishing_refresh` | Rafraîchir la liste noire anti-phishing | — | ManageGuild |
+
+**Vues du panel** : Déclenchements
+
+
+## 🛡️ Anti-nuke (ServerGuard) <a id="serverguard"></a>
+
+`serverguard` — Protection contre les raids d'administrateurs : surveillance du journal d'audit, seuils par exécuteur, punition et restauration automatiques, liste blanche de bots, webhooks, détection d'alts, audit de permissions, snapshots et mode panique. 
+
+**Paramètres (19)** : `alertChannel` (channel) — Salon des alertes · `alertRole` (role) — Rôle mentionné lors d'une alerte · `punishment` (choice, défaut `stripRoles`) — Punition de l'exécuteur · `quarantineRole` (role) — Rôle de quarantaine · `thresholds` (json) — Seuils par type d'action · `restoreOnNuke` (boolean, défaut `true`) — Restaurer automatiquement (salons, rôles, permissions…) · `restoreBans` (boolean, défaut `true`) — Débannir les victimes lors de la restauration · `trustedUsers` (list) — Administrateurs de confiance (exemptés) · `trustedRoles` (list) — Rôles de confiance (exemptés) · `exemptWhitelistedBots` (boolean, défaut `true`) — Exempter les bots de la liste blanche · `botWhitelistEnabled` (boolean, défaut `false`) — Expulser les bots non listés · `allowTrustedBotAdds` (boolean, défaut `false`) — Autoriser les ajouts de bots par les utilisateurs de confiance · `punishBotAdder` (boolean, défaut `false`) — Punir celui qui ajoute un bot non listé · `webhookGuard` (boolean, défaut `false`) — Supprimer les webhooks créés par des membres non approuvés · `snapshotIntervalHours` (integer, défaut `6`) — Intervalle des snapshots automatiques (heures, 0 = désactivé) · `snapshotKeep` (integer, défaut `10`) — Nombre de snapshots conservés · `altAutoScan` (boolean, défaut `false`) — Analyser les nouveaux membres (comptes alternatifs) · `altThreshold` (number, défaut `0.7`) — Seuil de similarité (0 à 1) · `altAction` (choice, défaut `none`) — Action sur un alt suspecté
+
+| Commande | Action | Description | Paramètres | Permissions |
+|---|---|---|---|---|
+| `/guard status` | `status` | État de la protection anti-nuke | — | ManageGuild |
+| `/guard test` | `test` | Simuler un déclenchement (sans action réelle) | `type`* (choice), `user` (user), `count` (integer), `alert` (boolean) | Administrator |
+| `/guard log` | `log` | Journal des actions détectées | `user` (user), `triggered` (boolean), `limit` (integer) | ManageGuild |
+| `/guard restore` | `restore` | Annuler les actions récentes d'un exécuteur | `user`* (user) | Administrator |
+| `/guard punish` | `punish_user` | Appliquer la punition anti-nuke à un membre | `user`* (user), `reason` (string) | Administrator |
+| `/guard audit` | `audit` | Audit des permissions dangereuses | — | ManageGuild |
+| `/guard permissions fix` | `permissions_fix` | Retirer les permissions dangereuses de @everyone | `confirm` (boolean) | Administrator |
+| `/guard panic` | `panic` | Mode panique : retirer les permissions dangereuses des rôles | `reason` (string) | Administrator |
+| `/guard unpanic` | `unpanic` | Quitter le mode panique (restaure les permissions) | — | Administrator |
+| `/guard bots add` | `bots_add` | Autoriser un bot | `bot`* (user), `note` (string) | Administrator |
+| `/guard bots remove` | `bots_remove` | Retirer un bot de la liste blanche | `bot`* (user) | Administrator |
+| `/guard bots list` | `bots_list` | Liste blanche des bots | — | ManageGuild |
+| `/guard trust add` | `trust_add` | Ajouter un utilisateur ou un rôle de confiance | `user` (user), `role` (role) | Administrator |
+| `/guard trust remove` | `trust_remove` | Retirer un utilisateur ou un rôle de confiance | `user` (user), `role` (role) | Administrator |
+| `/guard trust list` | `trust_list` | Utilisateurs et rôles de confiance | — | ManageGuild |
+| `/guard alts scan` | `alts_scan` | Rechercher des comptes alternatifs de bannis | `user` (user), `days` (integer), `threshold` (number) | BanMembers |
+| `/guard alts config` | `alts_config` | Configurer la détection d'alts | `auto` (boolean), `threshold` (number), `action` (choice) | Administrator |
+| `/guard snapshot now` | `snapshot_now` | Prendre un snapshot de la structure | — | Administrator |
+| `/guard snapshot list` | `snapshot_list` | Lister les snapshots | — | ManageGuild |
+| `/guard snapshot diff` | `snapshot_diff` | Comparer le serveur à un snapshot | `id` (integer) | ManageGuild |
+| `/guard snapshot restore` | `snapshot_restore` | Recréer les rôles/salons manquants depuis un snapshot | `id` (integer), `confirm` (boolean) | Administrator |
+
+**Vues du panel** : Évènements détectés, Bots autorisés, Snapshots
 
 
 # Économie & jeux
@@ -975,6 +1365,61 @@ Chaque action est disponible en commande slash, via l'API (`POST /api/guilds/:id
 **Vues du panel** : Comptes, Boutique, Transactions, Bourse, Primes, Échanges
 
 
+## 💎 Économie+ <a id="economyplus"></a>
+
+`economyplus` — Loterie, braquages en groupe, enchères, craft, ferme, pêche, chasse, mine, prêts, entreprises, quêtes journalières, prestige, coupons, cadeaux et évènements saisonniers (nécessite le module économie). 
+
+**Paramètres (47)** : `logChannel` (channel) — Salon des annonces / logs · `timezone` (string, défaut `Europe/Paris`) — Fuseau horaire (quêtes) · `lotteryTicketPrice` (integer, défaut `100`) — Prix d'un ticket · `lotteryDrawEvery` (integer, défaut `24`) — Tirage toutes les N heures · `lotterySeed` (integer, défaut `1000`) — Cagnotte de départ (seed) · `lotteryHouseCut` (number, défaut `0`) — Prélèvement sur les tickets (%) · `lotteryMaxTickets` (integer, défaut `100`) — Tickets max par membre et par tirage · `lotteryChannel` (channel) — Salon des tirages · `heistMinPlayers` (integer, défaut `2`) — Participants minimum · `heistMaxPlayers` (integer, défaut `10`) — Participants maximum · `heistJoinSeconds` (integer, défaut `120`) — Durée de recrutement (s) · `heistMinStake` (integer, défaut `100`) — Mise minimale · `heistBaseChance` (integer, défaut `30`) — Chance de base (%) · `heistChancePerPlayer` (integer, défaut `8`) — Bonus par complice (%) · `heistMaxChance` (integer, défaut `85`) — Chance maximale (%) · `heistEquipment` (json) — Équipement (objet → bonus %) · `heistBankMultiplier` (number, défaut `1.5`) — Multiplicateur du butin (banque) · `heistStealPercent` (integer, défaut `30`) — Part du portefeuille volée (cible membre, %) · `heistMaxLoot` (integer, défaut `50000`) — Butin maximal (cible membre) · `heistFinePercent` (integer, défaut `50`) — Amende en cas d'échec (% de la mise) · `heistJailMinutes` (integer, défaut `30`) — Prison fictive (minutes) · `heistCooldownMinutes` (integer, défaut `60`) — Délai entre deux braquages lancés (minutes) · `auctionFeePercent` (number, défaut `5`) — Commission sur les ventes (%) · `auctionMinIncrement` (integer, défaut `10`) — Surenchère minimale (%) · `auctionMaxHours` (integer, défaut `72`) — Durée maximale (heures) · `auctionChannel` (channel) — Salon des enchères · `recipes` (json) — Recettes de craft · `crops` (json) — Cultures · `farmPlots` (integer, défaut `4`) — Parcelles par membre · `fertilizerCost` (integer, défaut `150`) — Prix de l'engrais · `fishCooldown` (integer, défaut `30`) — Délai de pêche (s) · `huntCooldown` (integer, défaut `300`) — Délai de chasse (s) · `mineCooldown` (integer, défaut `120`) — Délai de minage (s) · `pickaxeBaseCost` (integer, défaut `1000`) — Coût de la 1re amélioration de pioche · `loanMax` (integer, défaut `10000`) — Montant maximal d'un prêt · `loanInterest` (number, défaut `10`) — Intérêt (%) · `loanMaxDays` (integer, défaut `14`) — Durée maximale (jours) · `loanAutoCollect` (boolean, défaut `true`) — Prélever automatiquement à l'échéance · `businesses` (json) — Entreprises · `businessMax` (integer, défaut `5`) — Entreprises max par membre · `questRewardMultiplier` (number, défaut `1`) — Multiplicateur des récompenses de quêtes · `questBonus` (integer, défaut `250`) — Bonus pour les 3 quêtes du jour · `prestigeBaseCost` (integer, défaut `100000`) — Coût du 1er prestige (fortune totale) · `prestigeGrowth` (number, défaut `2`) — Multiplicateur de coût par niveau · `prestigeBonus` (number, défaut `0.1`) — Bonus de gains par niveau · `giftMaxMessage` (integer, défaut `300`) — Longueur max du message de cadeau · `eventApplyMode` (choice, défaut `bonus`) — Application des évènements saisonniers
+
+| Commande | Action | Description | Paramètres | Permissions |
+|---|---|---|---|---|
+| `/ecoplus lottery buy` | `lottery_buy` | Acheter des tickets de loterie | `nombre` (integer) | Tous |
+| `/ecoplus lottery info` | `lottery_info` | Cagnotte et tirage en cours | — | Tous |
+| `/ecoplus lottery history` | `lottery_history` | Derniers tirages | — | Tous |
+| `/ecoplus lottery draw` | `lottery_draw` | Forcer le tirage de la loterie | — | ManageGuild |
+| `/ecoplus heist start` | `heist_start` | Organiser un braquage en groupe | `montant`* (integer), `cible` (user) | Tous |
+| `/ecoplus heist join` | `heist_join` | Rejoindre un braquage en préparation | `id` (integer) | Tous |
+| `/ecoplus auction create` | `auction_create` | Mettre un objet ou un montant aux enchères | `lot`* (string), `prix`* (integer), `duree`* (duration), `quantite` (integer) | Tous |
+| `/ecoplus auction bid` | `auction_bid` | Enchérir sur un lot | `id`* (integer), `montant` (integer) | Tous |
+| `/ecoplus auction list` | `auction_list` | Enchères en cours | — | Tous |
+| `/ecoplus auction cancel` | `auction_cancel` | Annuler une enchère | `id`* (integer) | Tous |
+| `/ecoplus craft recipes` | `craft_recipes` | Recettes de fabrication | — | Tous |
+| `/ecoplus craft make` | `craft_make` | Fabriquer un objet | `recette`* (string), `quantite` (integer) | Tous |
+| `/ecoplus farm plant` | `farm_plant` | Planter une culture | `culture`* (string), `parcelles` (integer) | Tous |
+| `/ecoplus farm harvest` | `farm_harvest` | Récolter les cultures mûres | — | Tous |
+| `/ecoplus farm status` | `farm_status` | État de votre ferme | `user` (user) | Tous |
+| `/ecoplus farm fertilize` | `farm_fertilize` | Engrais : accélère les cultures en cours | — | Tous |
+| `/ecoplus fish cast` | `fish_cast` | Pêcher (bouton « Ferrer » au bon moment) | — | Tous |
+| `/ecoplus fish sell` | `fish_sell` | Vendre vos poissons | `espece` (choice) | Tous |
+| `/ecoplus fish collection` | `fish_collection` | Votre collection de poissons | `user` (user) | Tous |
+| `/ecoplus hunt` | `hunt` | Partir à la chasse | — | Tous |
+| `/ecoplus mine dig` | `mine_dig` | Miner un filon | — | Tous |
+| `/ecoplus mine upgrade` | `mine_upgrade` | Améliorer votre pioche | — | Tous |
+| `/ecoplus loan take` | `loan_take` | Contracter un prêt | `montant`* (integer), `duree`* (duration) | Tous |
+| `/ecoplus loan repay` | `loan_repay` | Rembourser votre prêt | `montant` (integer) | Tous |
+| `/ecoplus loan status` | `loan_status` | État de votre prêt | `user` (user) | Tous |
+| `/ecoplus loan forgive` | `loan_forgive` | Annuler la dette d'un membre (admin) | `id`* (integer) | ManageGuild |
+| `/ecoplus business list` | `business_list` | Entreprises disponibles et possédées | `user` (user) | Tous |
+| `/ecoplus business buy` | `business_buy` | Acheter une entreprise | `type`* (string) | Tous |
+| `/ecoplus business collect` | `business_collect` | Encaisser les revenus de vos entreprises | — | Tous |
+| `/ecoplus business upgrade` | `business_upgrade` | Améliorer une entreprise | `type`* (string) | Tous |
+| `/ecoplus quests list` | `quests_list` | Vos quêtes du jour | — | Tous |
+| `/ecoplus quests claim` | `quests_claim` | Réclamer les récompenses des quêtes terminées | — | Tous |
+| `/ecoplus prestige` | `prestige` | Prestige : tout recommencer contre un bonus permanent | `confirmer` (boolean) | Tous |
+| `/ecoplus coupon create` | `coupon_create` | Créer un coupon (admin) | `code`* (string), `montant`* (integer), `usages` (integer), `duree` (duration) | ManageGuild |
+| `/ecoplus coupon redeem` | `coupon_redeem` | Utiliser un coupon | `code`* (string) | Tous |
+| `/ecoplus coupon list` | `coupon_list` | Lister les coupons (admin) | — | ManageGuild |
+| `/ecoplus coupon delete` | `coupon_delete` | Supprimer un coupon (admin) | `code`* (string) | ManageGuild |
+| `/ecoplus gift` | `gift` | Offrir de l'argent avec un message | `user`* (user), `montant`* (integer), `message` (string) | Tous |
+| `/ecoplus event start` | `event_start` | Lancer un évènement saisonnier (multiplicateur) | `nom`* (string), `multiplicateur`* (number), `duree`* (duration) | ManageGuild |
+| `/ecoplus event stop` | `event_stop` | Arrêter l'évènement en cours | — | ManageGuild |
+| `/ecoplus event status` | `event_status` | Évènement saisonnier en cours | — | Tous |
+| `/ecoplus globaltop` | `globaltop` | Classement de richesse multi-serveurs | — | Tous |
+| `/ecoplus stats` | `stats` | Statistiques Économie+ du serveur | — | Tous |
+
+**Vues du panel** : Prêts, Enchères, Entreprises, Coupons
+
+
 ## ⚔️ RPG <a id="rpg"></a>
 
 `rpg` — Personnages (guerrier, mage, voleur), boutique, combats de boss et duels au tour par tour, boss de serveur et familiers Tamagotchi. 
@@ -1009,6 +1454,172 @@ Chaque action est disponible en commande slash, via l'API (`POST /api/guilds/:id
 | `/rpg pet release` | `pet_release` | Relâcher votre familier (définitif) | `confirmer`* (boolean) | Tous |
 
 **Vues du panel** : Personnages, Familiers, Boss de serveur
+
+
+# Fun
+
+## 🎪 Jeux de salon <a id="channelgames"></a>
+
+`channelgames` — Compteur, chaîne de mots, histoire à un mot, salons restreints (emoji/média/lien/image), question et citation du jour, action ou vérité, ce ou ça, dernière lettre, patate chaude. 
+
+**Paramètres (17)** : `countingFailMode` (choice, défaut `reset`) — Erreur de comptage · `countingPenalty` (integer, défaut `50`) — Amende par erreur (mode amende) · `countingAllowMath` (boolean, défaut `true`) — Accepter les calculs (ex : 2+3) · `countingSameUser` (boolean, défaut `false`) — Autoriser à compter deux fois de suite · `countingReactions` (boolean, défaut `true`) — Réagir aux bons nombres · `wordchainMinLength` (integer, défaut `2`) — Longueur minimale des mots · `wordchainSameUser` (boolean, défaut `false`) — Autoriser deux mots de suite du même membre · `wordchainFailMode` (choice, défaut `delete`) — Mot invalide · `storySameUser` (boolean, défaut `false`) — Histoire : deux mots de suite du même membre · `storyMaxWords` (integer, défaut `0`) — Histoire : nombre de mots avant clôture (0 = illimité) · `enforceBypassStaff` (boolean, défaut `true`) — Le staff (Gérer les messages) ignore les restrictions · `reminderSeconds` (integer, défaut `6`) — Durée des rappels temporaires (s) · `timezone` (string, défaut `Europe/Paris`) — Fuseau horaire · `qotdPingRole` (role) — Rôle mentionné pour la question du jour · `qotdThread` (boolean, défaut `true`) — Créer un fil de discussion · `todDefaults` (boolean, défaut `true`) — Action ou vérité : inclure les défis intégrés · `lastletterSeconds` (integer, défaut `20`) — Dernière lettre : secondes par tour
+
+| Commande | Action | Description | Paramètres | Permissions |
+|---|---|---|---|---|
+| `/channelgames counting setup` | `counting_setup` | Définir un salon de comptage | `salon` (channel), `depart` (integer) | ManageChannels |
+| `/channelgames counting status` | `counting_status` | État du compteur | `salon` (channel) | Tous |
+| `/channelgames counting reset` | `counting_reset` | Remettre le compteur à zéro | `salon` (channel), `record` (boolean) | ManageChannels |
+| `/channelgames counting record` | `counting_record` | Records et meilleurs compteurs | `salon` (channel) | Tous |
+| `/channelgames counting disable` | `counting_disable` | Désactiver un salon de comptage | `salon` (channel) | ManageChannels |
+| `/channelgames wordchain setup` | `wordchain_setup` | Définir un salon de chaîne de mots | `salon` (channel) | ManageChannels |
+| `/channelgames wordchain status` | `wordchain_status` | État de la chaîne de mots | `salon` (channel) | Tous |
+| `/channelgames wordchain reset` | `wordchain_reset` | Réinitialiser la chaîne de mots | `salon` (channel) | ManageChannels |
+| `/channelgames wordchain disable` | `wordchain_disable` | Désactiver la chaîne de mots | `salon` (channel) | ManageChannels |
+| `/channelgames onewordstory setup` | `story_setup` | Définir un salon d'histoire à un mot | `salon` (channel) | ManageChannels |
+| `/channelgames onewordstory show` | `story_show` | Afficher l'histoire en cours | `salon` (channel), `archive` (integer) | Tous |
+| `/channelgames onewordstory reset` | `story_reset` | Archiver l'histoire et en commencer une nouvelle | `salon` (channel) | ManageChannels |
+| `/channelgames onewordstory disable` | `story_disable` | Désactiver l'histoire à un mot | `salon` (channel) | ManageChannels |
+| `/channelgames lastletter` | `lastletter` | Partie de « dernière lettre » (élimination) | — | Tous |
+| `/channelgames potato` | `potato` | Patate chaude : passez-la avant qu'elle explose | — | Tous |
+| `/channelgames enforce set` | `enforce_set` | Restreindre un salon à un type de contenu | `type`* (choice), `salon` (channel) | ManageChannels |
+| `/channelgames enforce remove` | `enforce_remove` | Retirer la restriction d'un salon | `salon` (channel) | ManageChannels |
+| `/channelgames enforce list` | `enforce_list` | Lister les salons restreints | — | ManageChannels |
+| `/channelgames qotd add` | `qotd_add` | Ajouter une question du jour | `question`* (string) | ManageMessages |
+| `/channelgames qotd remove` | `qotd_remove` | Supprimer une question du jour | `id`* (integer) | ManageMessages |
+| `/channelgames qotd list` | `qotd_list` | Lister les questions du jour | `toutes` (boolean) | ManageMessages |
+| `/channelgames qotd schedule` | `qotd_schedule` | Planifier la question du jour | `salon`* (channel), `heure`* (string), `actif` (boolean) | ManageGuild |
+| `/channelgames qotd now` | `qotd_now` | Publier la question du jour maintenant | — | ManageGuild |
+| `/channelgames tod random` | `tod_random` | Tirer une action ou une vérité | `type` (choice) | Tous |
+| `/channelgames tod add` | `tod_add` | Ajouter une action ou une vérité | `type`* (choice), `texte`* (string) | ManageMessages |
+| `/channelgames tod list` | `tod_list` | Lister les actions/vérités du serveur | — | Tous |
+| `/channelgames tod remove` | `tod_remove` | Supprimer une action/vérité | `id`* (integer) | ManageMessages |
+| `/channelgames thisorthat play` | `tot_play` | Lancer un vote « ce ou ça » | `a` (string), `b` (string) | Tous |
+| `/channelgames thisorthat add` | `tot_add` | Ajouter un duo « ce ou ça » | `a`* (string), `b`* (string) | ManageMessages |
+| `/channelgames quoteoftheday setup` | `quote_setup` | Planifier la citation du jour | `salon`* (channel), `heure` (string), `actif` (boolean) | ManageGuild |
+| `/channelgames quoteoftheday now` | `quote_now` | Publier la citation du jour maintenant | — | ManageGuild |
+| `/channelgames quoteoftheday add` | `quote_add` | Ajouter une citation personnalisée | `texte`* (string), `auteur` (string) | ManageMessages |
+
+**Vues du panel** : Salons restreints, Questions du jour, Compteurs
+
+
+## 🎲 Fun <a id="fun"></a>
+
+`fun` — Mini-jeux (morpion, pendu, quiz, devinette), 8ball, blagues, mèmes, manipulations d'images et commandes amusantes. 
+
+**Paramètres (5)** : `removeBgKey` (string) — Clé API remove.bg · `memeSubreddits` (list) — Subreddits de mèmes · `triviaSeconds` (integer, défaut `30`) — Temps de réponse au quiz (s) · `guessMax` (integer, défaut `100`) — Borne par défaut de /game guess · `messageGuesses` (boolean, défaut `true`) — Réponses par message
+
+| Commande | Action | Description | Paramètres | Permissions |
+|---|---|---|---|---|
+| `/fun 8ball` | `eightball` | Poser une question à la boule magique | `question`* (string) | Tous |
+| `/fun coinflip` | `coinflip` | Pile ou face | `choix` (choice) | Tous |
+| `/fun dice` | `dice` | Lancer des dés (ex: 2d20+3) | `faces` (integer), `nombre` (integer), `notation` (string) | Tous |
+| `/fun rps` | `rps` | Pierre-feuille-ciseaux contre le bot ou un membre (boutons) | `adversaire` (user), `choix` (choice) | Tous |
+| `/fun choose` | `choose` | Choisir au hasard parmi plusieurs options | `options`* (list) | Tous |
+| `/fun ship` | `ship` | Calculer la compatibilité entre deux membres | `membre1`* (user), `membre2` (user) | Tous |
+| `/fun lovecalc` | `lovecalc` | Calculateur d'amour entre deux noms | `nom1`* (string), `nom2`* (string) | Tous |
+| `/fun joke` | `joke` | Une blague au hasard | — | Tous |
+| `/fun fact` | `fact` | Un fait insolite | — | Tous |
+| `/fun wyr` | `wyr` | Tu préfères… ? (vote par boutons) | `option_a` (string), `option_b` (string) | Tous |
+| `/fun roast` | `roast` | Clasher gentiment un membre | `membre`* (user) | Tous |
+| `/fun hug` | `hug` | Faire un câlin à un membre | `membre`* (user) | Tous |
+| `/fun slap` | `slap` | Mettre une claque à un membre | `membre`* (user) | Tous |
+| `/fun reverse` | `reverse` | Inverser un texte | `texte`* (string) | Tous |
+| `/fun mock` | `mock` | tExTe MoQuEuR façon Bob l'éponge | `texte`* (string) | Tous |
+| `/fun ascii` | `ascii` | Encadrer un texte en ASCII | `texte`* (string), `style` (choice) | Tous |
+| `/fun cat` | `cat` | Une photo de chat au hasard | — | Tous |
+| `/fun dog` | `dog` | Une photo de chien au hasard | `race` (string) | Tous |
+| `/game tictactoe` | `tictactoe` | Morpion contre un membre ou contre l'IA (minimax) | `adversaire` (user), `difficulte` (choice), `case` (integer) | Tous |
+| `/game hangman` | `hangman` | Jeu du pendu (lettres via menus ou messages) | `categorie` (choice), `ouvert` (boolean), `lettre` (string) | Tous |
+| `/game trivia` | `trivia` | Question de quiz (60+ questions en français) | `categorie` (choice), `ouvert` (boolean), `reponse` (choice) | Tous |
+| `/game guess` | `guess` | Deviner un nombre (plus / moins) | `max` (integer), `proposition` (integer) | Tous |
+| `/game reset` | `scores_reset` | Réinitialiser les scores des mini-jeux (d'un membre ou du serveur) | `membre` (user) | ManageGuild |
+| `/game leaderboard` | `game_leaderboard` | Classement des mini-jeux | `jeu` (choice) | Tous |
+| `/fun meme random` | `meme_random` | Un mème au hasard depuis Reddit | `subreddit` (string) | Tous |
+| `/fun meme create` | `meme_create` | Créer un mème à partir d'un modèle memegen.link | `template`* (string), `haut` (string), `bas` (string) | Tous |
+| `/fun meme templates` | `meme_templates` | Lister les modèles de mèmes disponibles | `recherche` (string) | Tous |
+| `/fun meme caption` | `meme_caption` | Ajouter un texte façon mème sur une image (« haut \| bas ») | `texte`* (string), `image_url` (string), `fichier` (attachment), `membre` (user) | Tous |
+| `/fun image grayscale` | `image_grayscale` | Convertir une image en noir et blanc | `membre` (user), `url` (string), `fichier` (attachment) | Tous |
+| `/fun image invert` | `image_invert` | Inverser les couleurs d'une image | `membre` (user), `url` (string), `fichier` (attachment) | Tous |
+| `/fun image pixelate` | `image_pixelate` | Pixeliser une image | `membre` (user), `url` (string), `fichier` (attachment), `intensite` (integer) | Tous |
+| `/fun image blur` | `image_blur` | Flouter une image | `membre` (user), `url` (string), `fichier` (attachment), `rayon` (integer) | Tous |
+| `/fun image flip` | `image_flip` | Retourner une image | `membre` (user), `url` (string), `fichier` (attachment), `sens` (choice) | Tous |
+| `/fun image deepfry` | `image_deepfry` | Effet « deep fried » saturé | `membre` (user), `url` (string), `fichier` (attachment) | Tous |
+| `/fun image circle` | `image_circle` | Découper une image en cercle | `membre` (user), `url` (string), `fichier` (attachment) | Tous |
+| `/fun image wanted` | `image_wanted` | Affiche WANTED | `membre` (user), `url` (string), `fichier` (attachment), `prime` (integer) | Tous |
+| `/fun image triggered` | `image_triggered` | GIF animé « TRIGGERED » | `membre` (user), `url` (string), `fichier` (attachment) | Tous |
+| `/fun image removebg` | `image_removebg` | Supprimer l'arrière-plan d'une image (API remove.bg) | `membre` (user), `url` (string), `fichier` (attachment) | Tous |
+
+**Vues du panel** : Scores des mini-jeux
+
+
+## 🕹️ Mini-jeux <a id="minigames"></a>
+
+`minigames` — Wordle, puissance 4, 2048, démineur, memory, bataille navale, quiz duel, pendu, courses de frappe et de calcul… avec scores et mises optionnelles. 
+
+**Paramètres (9)** : `allowBets` (boolean, défaut `true`) — Autoriser les mises · `maxBet` (integer, défaut `10000`) — Mise maximale (0 = illimitée) · `gameChannels` (list) — Salons autorisés · `typingTolerance` (number, défaut `0.9`) — Tolérance de la course de frappe · `timezone` (string, défaut `Europe/Paris`) — Fuseau horaire · `quizDayEnabled` (boolean, défaut `false`) — Quiz du jour activé · `quizDayChannel` (channel) — Salon du quiz du jour · `quizDayTime` (string, défaut `12:00`) — Heure de publication (HH:MM) · `quizDayPing` (role) — Rôle à mentionner
+
+| Commande | Action | Description | Paramètres | Permissions |
+|---|---|---|---|---|
+| `/minigames wordle` | `wordle` | Wordle : trouver un mot de 5 lettres en 6 essais | `mode` (choice), `mise` (integer) | Tous |
+| `/minigames connect4` | `connect4` | Puissance 4 contre un membre ou le bot | `adversaire` (user), `mise` (integer) | Tous |
+| `/minigames 2048` | `g2048` | Jeu 2048 avec des boutons fléchés | — | Tous |
+| `/minigames minesweeper` | `minesweeper` | Démineur 5×5 à boutons | `mines` (integer), `mise` (integer) | Tous |
+| `/minigames typing` | `typing` | Course de frappe : recopier la phrase le plus vite | — | Tous |
+| `/minigames scramble` | `scramble` | Anagramme : retrouver le mot mélangé | — | Tous |
+| `/minigames memory` | `memory` | Memory : retrouver les paires d'emojis | — | Tous |
+| `/minigames mathrace` | `mathrace` | Course de calcul mental dans le salon | `manches` (integer), `difficulte` (choice) | Tous |
+| `/minigames reaction` | `reaction` | Réflexes : cliquer dès que le bouton devient vert | — | Tous |
+| `/minigames roulette` | `roulette` | Roulette russe : tirez ou encaissez | `mise` (integer) | Tous |
+| `/minigames dice` | `dice` | Duel de dés contre un membre | `adversaire`* (user), `mise` (integer) | Tous |
+| `/minigames battleship` | `battleship` | Bataille navale 5×5 (solo ou contre un membre) | `adversaire` (user), `mise` (integer) | Tous |
+| `/minigames quizduel` | `quizduel` | Duel de quiz contre un membre | `adversaire`* (user), `manches` (integer), `mise` (integer) | Tous |
+| `/minigames quizday` | `quizday` | Configurer le quiz du jour (salon, heure) | `salon` (channel), `heure` (string), `actif` (boolean), `maintenant` (boolean) | ManageGuild |
+| `/minigames hangman` | `hangman` | Pendu coopératif dans le salon | — | Tous |
+| `/minigames guessnumber` | `guessnumber` | Devine le nombre (multijoueur, plus/moins) | `max` (integer) | Tous |
+| `/minigames guess` | `guess` | Proposer une réponse (wordle, pendu, anagramme…) | `texte`* (string) | Tous |
+| `/minigames leaderboard` | `leaderboard` | Classement des mini-jeux | `jeu` (choice) | Tous |
+| `/minigames stats` | `stats` | Statistiques de mini-jeux d'un membre | `user` (user) | Tous |
+| `/minigames cancel` | `cancel` | Annuler votre partie en cours | — | Tous |
+
+
+## 🎲 Jeu de rôle <a id="tabletop"></a>
+
+`tabletop` — Dés avancés, tables aléatoires, PNJ, butin, initiative, fiches de personnage, cartes, dés Fate et générateurs. 
+
+**Paramètres (3)** : `maxRepeat` (integer, défaut `20`) — Répétitions max par lancer · `showDetails` (boolean, défaut `true`) — Afficher le détail de chaque dé · `critMessages` (boolean, défaut `true`) — Messages de critique (nat 20 / nat 1)
+
+| Commande | Action | Description | Paramètres | Permissions |
+|---|---|---|---|---|
+| `/roll dice` | `dice` | Lancer des dés (2d6+3, 4d6kh3, d20 adv, 3d6!, 6d10>=7, x3…) | `expression`* (string), `personnage` (string), `secret` (boolean) | Tous |
+| `/roll stats` | `stats` | Distribution statistique d'une expression de dés | `expression`* (string) | Tous |
+| `/roll npc` | `npc` | Générer un PNJ (nom, race, métier, trait, secret) | `nombre` (integer) | Tous |
+| `/roll loot` | `loot` | Générer un butin selon le niveau | `niveau` (integer) | Tous |
+| `/roll name` | `name` | Générateur de noms (fantasy, sf, moderne, nain, orc) | `style` (choice), `nombre` (integer) | Tous |
+| `/roll coin` | `coin` | Pile ou face | `nombre` (integer) | Tous |
+| `/roll card` | `card` | Tirer des cartes d'un jeu de 52 (paquet par salon) | `nombre` (integer), `melanger` (boolean), `salon` (channel) | Tous |
+| `/roll fate` | `fate` | Lancer 4 dés Fate (4dF) avec l'échelle des résultats | `modificateur` (integer) | Tous |
+| `/roll encounter` | `encounter` | Générer une rencontre aléatoire | `environnement` (choice) | Tous |
+| `/roll weather` | `weather` | Générer la météo du jour | `saison` (choice) | Tous |
+| `/roll tavern` | `tavern` | Générer une taverne et une rumeur | — | Tous |
+| `/roll table create` | `table_create` | Créer une table aléatoire | `nom`* (string), `description` (string), `entrees` (list) | ManageMessages |
+| `/roll table add` | `table_add` | Ajouter une entrée à une table | `table`* (string), `entree`* (string), `poids` (integer) | ManageMessages |
+| `/roll table remove` | `table_remove` | Retirer une entrée (par numéro) | `table`* (string), `numero`* (integer) | ManageMessages |
+| `/roll table roll` | `table_roll` | Tirer dans une table aléatoire | `table`* (string), `fois` (integer), `unique` (boolean) | Tous |
+| `/roll table list` | `table_list` | Lister les tables aléatoires | — | Tous |
+| `/roll table view` | `table_view` | Voir le contenu d'une table | `table`* (string) | Tous |
+| `/roll table delete` | `table_delete` | Supprimer une table | `table`* (string) | ManageMessages |
+| `/roll initiative add` | `initiative_add` | Ajouter un combattant à l'initiative du salon | `nom`* (string), `valeur` (integer), `modificateur` (integer), `joueur` (user), `salon` (channel) | Tous |
+| `/roll initiative list` | `initiative_list` | Afficher l'ordre d'initiative | `salon` (channel) | Tous |
+| `/roll initiative next` | `initiative_next` | Passer au tour suivant | `salon` (channel) | Tous |
+| `/roll initiative remove` | `initiative_remove` | Retirer un combattant | `nom`* (string), `salon` (channel) | Tous |
+| `/roll initiative clear` | `initiative_clear` | Réinitialiser l'initiative du salon | `salon` (channel) | Tous |
+| `/roll character create` | `character_create` | Créer une fiche de personnage | `nom`* (string), `classe` (string), `niveau` (integer), `pv` (integer), `caracs` (string), `notes` (text) | Tous |
+| `/roll character show` | `character_show` | Afficher une fiche de personnage | `nom` (string), `joueur` (user) | Tous |
+| `/roll character set` | `character_set` | Modifier un champ de votre fiche | `nom`* (string), `champ`* (choice), `valeur`* (string) | Tous |
+| `/roll character list` | `character_list` | Lister les fiches de personnage | `joueur` (user) | Tous |
+| `/roll character delete` | `character_delete` | Supprimer une fiche de personnage | `nom`* (string), `joueur` (user) | Tous |
+
+**Vues du panel** : Personnages, Tables aléatoires
 
 
 # Général
@@ -1060,6 +1671,36 @@ Chaque action est disponible en commande slash, via l'API (`POST /api/guilds/:id
 | `/channels purge run` | `purge_run` | Exécuter une purge planifiée maintenant | `id`* (integer) | ManageMessages |
 
 **Vues du panel** : Messages collants, Modèles de catégories, Purges automatiques, Salons archivés, Modes lents planifiés, Salons temporaires
+
+
+## 😀 Emojis <a id="emojis"></a>
+
+`emojis` — Emojis et stickers : ajout, vol, packs, verrouillage par rôle, statistiques d'utilisation, nettoyage, agrandissement. 
+
+**Paramètres (4)** : `logChannel` (channel) — Salon des logs · `trackUsage` (boolean, défaut `true`) — Suivre l'utilisation dans les messages · `trackReactions` (boolean, défaut `true`) — Suivre l'utilisation en réaction · `maxPerMessage` (integer, défaut `3`) — Occurrences max comptées par emoji et par message
+
+| Commande | Action | Description | Paramètres | Permissions |
+|---|---|---|---|---|
+| `/emojis list` | `list` | Lister les emojis du serveur | `type` (choice), `page` (integer), `grid` (boolean) | Tous |
+| `/emojis add` | `add` | Ajouter un emoji (URL ou fichier) | `name`* (string), `url` (string), `attachment` (attachment), `roles` (list) | ManageGuildExpressions |
+| `/emojis steal` | `steal` | Copier des emojis d'un autre serveur | `emojis`* (string), `name` (string) | ManageGuildExpressions |
+| `/emojis rename` | `rename` | Renommer un emoji | `emoji`* (string), `name`* (string) | ManageGuildExpressions |
+| `/emojis delete` | `delete` | Supprimer un emoji | `emoji`* (string), `reason` (string) | ManageGuildExpressions |
+| `/emojis info` | `info` | Informations sur un emoji | `emoji`* (string) | Tous |
+| `/emojis big` | `big` | Afficher un emoji en grand | `emoji`* (string) | Tous |
+| `/emojis stats` | `stats` | Statistiques d'utilisation des emojis | `mode` (choice), `days` (integer), `limit` (integer) | Tous |
+| `/emojis lock` | `lock` | Restreindre un emoji à des rôles | `emoji`* (string), `role`* (role), `role2` (role), `role3` (role) | ManageGuildExpressions |
+| `/emojis unlock` | `unlock` | Retirer la restriction de rôles d'un emoji | `emoji`* (string), `role` (role) | ManageGuildExpressions |
+| `/emojis cleanup` | `cleanup` | Supprimer les emojis inutilisés depuis N jours | `days`* (integer), `delete` (boolean), `confirm` (boolean) | ManageGuildExpressions |
+| `/emojis random` | `random` | Un emoji du serveur au hasard | `type` (choice) | Tous |
+| `/emojis pack export` | `pack_export` | Exporter les emojis (JSON + liste d'URL) | `type` (choice) | ManageGuildExpressions |
+| `/emojis pack import` | `pack_import` | Importer un pack d'emojis (JSON) | `file` (attachment), `json` (json), `prefix` (string), `limit` (integer) | ManageGuildExpressions |
+| `/emojis stickers list` | `stickers_list` | Lister les stickers du serveur | — | Tous |
+| `/emojis stickers add` | `stickers_add` | Ajouter un sticker (PNG/APNG/GIF) | `name`* (string), `tags`* (string), `url` (string), `attachment` (attachment), `description` (string) | ManageGuildExpressions |
+| `/emojis stickers delete` | `stickers_delete` | Supprimer un sticker | `sticker`* (string) | ManageGuildExpressions |
+| `/emojis stickers steal` | `stickers_steal` | Copier un sticker (ID ou message) | `sticker_id` (string), `message_id` (string), `channel` (channel), `name` (string) | ManageGuildExpressions |
+
+**Vues du panel** : Utilisation des emojis, Stickers
 
 
 ## 🎭 Rôles <a id="roles"></a>
@@ -1142,6 +1783,35 @@ Chaque action est disponible en commande slash, via l'API (`POST /api/guilds/:id
 **Vues du panel** : Fils automatiques, Fils maintenus actifs, Règles de tags de forum
 
 
+## 🪝 Webhooks <a id="webhooks"></a>
+
+`webhooks` — Webhooks : liste, création, envoi avec identité personnalisée, « parler en tant que », protection contre les webhooks non autorisés, webhooks externes enregistrés. 
+
+**Paramètres (7)** : `logChannel` (channel) — Salon des logs · `guardEnabled` (boolean, défaut `false`) — Protection des webhooks · `guardAction` (choice, défaut `delete`) — Action de la protection · `guardWhitelistRoles` (list) — Rôles autorisés à créer des webhooks · `guardWhitelistUsers` (list) — Utilisateurs autorisés à créer des webhooks · `sendasEnabled` (boolean, défaut `true`) — Autoriser « parler en tant que » · `proxyName` (string, défaut `HeiphaisBot Relais`) — Nom du webhook relais du bot
+
+| Commande | Action | Description | Paramètres | Permissions |
+|---|---|---|---|---|
+| `/webhooks list` | `list` | Lister les webhooks du serveur | `channel` (channel) | ManageWebhooks |
+| `/webhooks create` | `create` | Créer un webhook | `channel`* (channel), `name`* (string), `avatar` (string) | ManageWebhooks |
+| `/webhooks delete` | `delete` | Supprimer un webhook | `webhook`* (string), `reason` (string) | ManageWebhooks |
+| `/webhooks edit` | `edit` | Modifier un webhook | `webhook`* (string), `name` (string), `avatar` (string), `channel` (channel) | ManageWebhooks |
+| `/webhooks send` | `send` | Envoyer un message via un webhook | `webhook`* (string), `message` (text), `embed` (json), `username` (string), `avatar` (string), `thread` (string) | ManageWebhooks |
+| `/webhooks sendas` | `sendas` | Envoyer un message « en tant que » un membre | `user`* (user), `message`* (text), `channel` (channel) | ManageWebhooks |
+| `/webhooks editmsg` | `editmsg` | Modifier un message envoyé par un webhook | `webhook`* (string), `message_id`* (string), `content` (text), `embed` (json), `thread` (string) | ManageWebhooks |
+| `/webhooks deletemsg` | `deletemsg` | Supprimer un message envoyé par un webhook | `webhook`* (string), `message_id`* (string), `thread` (string) | ManageWebhooks |
+| `/webhooks info` | `info` | Détails d'un webhook | `webhook`* (string), `reveal` (boolean) | ManageWebhooks |
+| `/webhooks test` | `test` | Envoyer un message de test via un webhook | `webhook`* (string), `thread` (string) | ManageWebhooks |
+| `/webhooks guard status` | `guard_status` | État de la protection des webhooks | — | ManageWebhooks |
+| `/webhooks guard set` | `guard_set` | Activer/configurer la protection | `enabled`* (boolean), `action` (choice) | ManageGuild, ManageWebhooks |
+| `/webhooks guard allow` | `guard_allow` | Autoriser un rôle/membre à créer des webhooks | `target`* (mentionable) | ManageGuild, ManageWebhooks |
+| `/webhooks guard disallow` | `guard_disallow` | Retirer une autorisation de création | `target`* (mentionable) | ManageGuild, ManageWebhooks |
+| `/webhooks saved add` | `saved_add` | Enregistrer un webhook externe (URL) | `name`* (string), `url`* (string) | ManageWebhooks |
+| `/webhooks saved remove` | `saved_remove` | Supprimer un webhook enregistré | `name`* (string) | ManageWebhooks |
+| `/webhooks saved list` | `saved_list` | Lister les webhooks enregistrés | — | ManageWebhooks |
+
+**Vues du panel** : Webhooks du serveur, Webhooks externes enregistrés
+
+
 # Intégrations
 
 ## 📡 Flux & alertes <a id="feeds"></a>
@@ -1210,98 +1880,6 @@ Chaque action est disponible en commande slash, via l'API (`POST /api/guilds/:id
 **Menus contextuels** : « Créer une carte Trello », « Créer un ticket Jira »
 
 **Vues du panel** : Webhooks entrants, Webhooks sortants, Livraisons, Surveillances d'API, Archives
-
-
-# Fun
-
-## 🎲 Fun <a id="fun"></a>
-
-`fun` — Mini-jeux (morpion, pendu, quiz, devinette), 8ball, blagues, mèmes, manipulations d'images et commandes amusantes. 
-
-**Paramètres (5)** : `removeBgKey` (string) — Clé API remove.bg · `memeSubreddits` (list) — Subreddits de mèmes · `triviaSeconds` (integer, défaut `30`) — Temps de réponse au quiz (s) · `guessMax` (integer, défaut `100`) — Borne par défaut de /game guess · `messageGuesses` (boolean, défaut `true`) — Réponses par message
-
-| Commande | Action | Description | Paramètres | Permissions |
-|---|---|---|---|---|
-| `/fun 8ball` | `eightball` | Poser une question à la boule magique | `question`* (string) | Tous |
-| `/fun coinflip` | `coinflip` | Pile ou face | `choix` (choice) | Tous |
-| `/fun dice` | `dice` | Lancer des dés (ex: 2d20+3) | `faces` (integer), `nombre` (integer), `notation` (string) | Tous |
-| `/fun rps` | `rps` | Pierre-feuille-ciseaux contre le bot ou un membre (boutons) | `adversaire` (user), `choix` (choice) | Tous |
-| `/fun choose` | `choose` | Choisir au hasard parmi plusieurs options | `options`* (list) | Tous |
-| `/fun ship` | `ship` | Calculer la compatibilité entre deux membres | `membre1`* (user), `membre2` (user) | Tous |
-| `/fun lovecalc` | `lovecalc` | Calculateur d'amour entre deux noms | `nom1`* (string), `nom2`* (string) | Tous |
-| `/fun joke` | `joke` | Une blague au hasard | — | Tous |
-| `/fun fact` | `fact` | Un fait insolite | — | Tous |
-| `/fun wyr` | `wyr` | Tu préfères… ? (vote par boutons) | `option_a` (string), `option_b` (string) | Tous |
-| `/fun roast` | `roast` | Clasher gentiment un membre | `membre`* (user) | Tous |
-| `/fun hug` | `hug` | Faire un câlin à un membre | `membre`* (user) | Tous |
-| `/fun slap` | `slap` | Mettre une claque à un membre | `membre`* (user) | Tous |
-| `/fun reverse` | `reverse` | Inverser un texte | `texte`* (string) | Tous |
-| `/fun mock` | `mock` | tExTe MoQuEuR façon Bob l'éponge | `texte`* (string) | Tous |
-| `/fun ascii` | `ascii` | Encadrer un texte en ASCII | `texte`* (string), `style` (choice) | Tous |
-| `/fun cat` | `cat` | Une photo de chat au hasard | — | Tous |
-| `/fun dog` | `dog` | Une photo de chien au hasard | `race` (string) | Tous |
-| `/game tictactoe` | `tictactoe` | Morpion contre un membre ou contre l'IA (minimax) | `adversaire` (user), `difficulte` (choice), `case` (integer) | Tous |
-| `/game hangman` | `hangman` | Jeu du pendu (lettres via menus ou messages) | `categorie` (choice), `ouvert` (boolean), `lettre` (string) | Tous |
-| `/game trivia` | `trivia` | Question de quiz (60+ questions en français) | `categorie` (choice), `ouvert` (boolean), `reponse` (choice) | Tous |
-| `/game guess` | `guess` | Deviner un nombre (plus / moins) | `max` (integer), `proposition` (integer) | Tous |
-| `/game reset` | `scores_reset` | Réinitialiser les scores des mini-jeux (d'un membre ou du serveur) | `membre` (user) | ManageGuild |
-| `/game leaderboard` | `game_leaderboard` | Classement des mini-jeux | `jeu` (choice) | Tous |
-| `/fun meme random` | `meme_random` | Un mème au hasard depuis Reddit | `subreddit` (string) | Tous |
-| `/fun meme create` | `meme_create` | Créer un mème à partir d'un modèle memegen.link | `template`* (string), `haut` (string), `bas` (string) | Tous |
-| `/fun meme templates` | `meme_templates` | Lister les modèles de mèmes disponibles | `recherche` (string) | Tous |
-| `/fun meme caption` | `meme_caption` | Ajouter un texte façon mème sur une image (« haut \| bas ») | `texte`* (string), `image_url` (string), `fichier` (attachment), `membre` (user) | Tous |
-| `/image grayscale` | `image_grayscale` | Convertir une image en noir et blanc | `membre` (user), `url` (string), `fichier` (attachment) | Tous |
-| `/image invert` | `image_invert` | Inverser les couleurs d'une image | `membre` (user), `url` (string), `fichier` (attachment) | Tous |
-| `/image pixelate` | `image_pixelate` | Pixeliser une image | `membre` (user), `url` (string), `fichier` (attachment), `intensite` (integer) | Tous |
-| `/image blur` | `image_blur` | Flouter une image | `membre` (user), `url` (string), `fichier` (attachment), `rayon` (integer) | Tous |
-| `/image flip` | `image_flip` | Retourner une image | `membre` (user), `url` (string), `fichier` (attachment), `sens` (choice) | Tous |
-| `/image deepfry` | `image_deepfry` | Effet « deep fried » saturé | `membre` (user), `url` (string), `fichier` (attachment) | Tous |
-| `/image circle` | `image_circle` | Découper une image en cercle | `membre` (user), `url` (string), `fichier` (attachment) | Tous |
-| `/image wanted` | `image_wanted` | Affiche WANTED | `membre` (user), `url` (string), `fichier` (attachment), `prime` (integer) | Tous |
-| `/image triggered` | `image_triggered` | GIF animé « TRIGGERED » | `membre` (user), `url` (string), `fichier` (attachment) | Tous |
-| `/fun image removebg` | `image_removebg` | Supprimer l'arrière-plan d'une image (API remove.bg) | `membre` (user), `url` (string), `fichier` (attachment) | Tous |
-
-**Vues du panel** : Scores des mini-jeux
-
-
-## 🎲 Jeu de rôle <a id="tabletop"></a>
-
-`tabletop` — Dés avancés, tables aléatoires, PNJ, butin, initiative, fiches de personnage, cartes, dés Fate et générateurs. 
-
-**Paramètres (3)** : `maxRepeat` (integer, défaut `20`) — Répétitions max par lancer · `showDetails` (boolean, défaut `true`) — Afficher le détail de chaque dé · `critMessages` (boolean, défaut `true`) — Messages de critique (nat 20 / nat 1)
-
-| Commande | Action | Description | Paramètres | Permissions |
-|---|---|---|---|---|
-| `/roll dice` | `dice` | Lancer des dés (2d6+3, 4d6kh3, d20 adv, 3d6!, 6d10>=7, x3…) | `expression`* (string), `personnage` (string), `secret` (boolean) | Tous |
-| `/roll stats` | `stats` | Distribution statistique d'une expression de dés | `expression`* (string) | Tous |
-| `/roll npc` | `npc` | Générer un PNJ (nom, race, métier, trait, secret) | `nombre` (integer) | Tous |
-| `/roll loot` | `loot` | Générer un butin selon le niveau | `niveau` (integer) | Tous |
-| `/roll name` | `name` | Générateur de noms (fantasy, sf, moderne, nain, orc) | `style` (choice), `nombre` (integer) | Tous |
-| `/roll coin` | `coin` | Pile ou face | `nombre` (integer) | Tous |
-| `/roll card` | `card` | Tirer des cartes d'un jeu de 52 (paquet par salon) | `nombre` (integer), `melanger` (boolean), `salon` (channel) | Tous |
-| `/roll fate` | `fate` | Lancer 4 dés Fate (4dF) avec l'échelle des résultats | `modificateur` (integer) | Tous |
-| `/roll encounter` | `encounter` | Générer une rencontre aléatoire | `environnement` (choice) | Tous |
-| `/roll weather` | `weather` | Générer la météo du jour | `saison` (choice) | Tous |
-| `/roll tavern` | `tavern` | Générer une taverne et une rumeur | — | Tous |
-| `/roll table create` | `table_create` | Créer une table aléatoire | `nom`* (string), `description` (string), `entrees` (list) | ManageMessages |
-| `/roll table add` | `table_add` | Ajouter une entrée à une table | `table`* (string), `entree`* (string), `poids` (integer) | ManageMessages |
-| `/roll table remove` | `table_remove` | Retirer une entrée (par numéro) | `table`* (string), `numero`* (integer) | ManageMessages |
-| `/roll table roll` | `table_roll` | Tirer dans une table aléatoire | `table`* (string), `fois` (integer), `unique` (boolean) | Tous |
-| `/roll table list` | `table_list` | Lister les tables aléatoires | — | Tous |
-| `/roll table view` | `table_view` | Voir le contenu d'une table | `table`* (string) | Tous |
-| `/roll table delete` | `table_delete` | Supprimer une table | `table`* (string) | ManageMessages |
-| `/roll initiative add` | `initiative_add` | Ajouter un combattant à l'initiative du salon | `nom`* (string), `valeur` (integer), `modificateur` (integer), `joueur` (user), `salon` (channel) | Tous |
-| `/roll initiative list` | `initiative_list` | Afficher l'ordre d'initiative | `salon` (channel) | Tous |
-| `/roll initiative next` | `initiative_next` | Passer au tour suivant | `salon` (channel) | Tous |
-| `/roll initiative remove` | `initiative_remove` | Retirer un combattant | `nom`* (string), `salon` (channel) | Tous |
-| `/roll initiative clear` | `initiative_clear` | Réinitialiser l'initiative du salon | `salon` (channel) | Tous |
-| `/roll character create` | `character_create` | Créer une fiche de personnage | `nom`* (string), `classe` (string), `niveau` (integer), `pv` (integer), `caracs` (string), `notes` (text) | Tous |
-| `/roll character show` | `character_show` | Afficher une fiche de personnage | `nom` (string), `joueur` (user) | Tous |
-| `/roll character set` | `character_set` | Modifier un champ de votre fiche | `nom`* (string), `champ`* (choice), `valeur`* (string) | Tous |
-| `/roll character list` | `character_list` | Lister les fiches de personnage | `joueur` (user) | Tous |
-| `/roll character delete` | `character_delete` | Supprimer une fiche de personnage | `nom`* (string), `joueur` (user) | Tous |
-
-**Vues du panel** : Personnages, Tables aléatoires
 
 
 # Gaming
@@ -1495,6 +2073,42 @@ Chaque action est disponible en commande slash, via l'API (`POST /api/guilds/:id
 
 
 # Musique & médias
+
+## 🎧 Média <a id="media"></a>
+
+`media` — Paroles, soundboard, synthèse vocale (TTS), sons d'arrivée, playlists personnelles, recherche YouTube, Spotify, GIF, outils image/vidéo/audio. *(désactivé par défaut)*
+
+**Paramètres (14)** : `soundVolume` (integer, défaut `100`) — Volume des sons (%) · `soundMaxSeconds` (integer, défaut `30`) — Durée max. d'un son (secondes) · `maxSounds` (integer, défaut `50`) — Nombre max. de sons · `allowMembersAddSounds` (boolean, défaut `false`) — Les membres peuvent ajouter des sons · `leaveAfter` (integer, défaut `30`) — Quitter le vocal après (secondes d'inactivité) · `joinSoundsEnabled` (boolean, défaut `true`) — Sons d'arrivée activés · `joinSoundInterruptMusic` (boolean, défaut `false`) — Les sons d'arrivée interrompent la musique · `joinSounds` (json) — Sons d'arrivée · `ttsLanguage` (choice, défaut `fr`) — Langue TTS par défaut · `ttsEngine` (choice, défaut `auto`) — Moteur TTS · `ttsMaxLength` (integer, défaut `500`) — Longueur max. du texte TTS · `tenorKey` (string) — Clé API Tenor · `giphyKey` (string) — Clé API Giphy · `maxConvertMb` (integer, défaut `20`) — Taille max. d'entrée pour la conversion (Mo)
+
+| Commande | Action | Description | Paramètres | Permissions |
+|---|---|---|---|---|
+| `/media lyrics` | `lyrics` | Paroles d'une chanson | `titre`* (string), `artiste` (string) | Tous |
+| `/media sound add` | `sound_add` | Ajouter un son (mp3/ogg/wav, 5 Mo max) | `nom`* (string), `url` (string), `fichier` (attachment) | Tous |
+| `/media sound list` | `sound_list` | Lister les sons du serveur | — | Tous |
+| `/media sound remove` | `sound_remove` | Supprimer un son (le vôtre, ou tous avec Gérer le serveur) | `nom`* (string) | Tous |
+| `/media sound play` | `sound_play` | Jouer un son dans votre salon vocal | `nom`* (string), `salon` (channel) | Tous |
+| `/media sound stop` | `sound_stop` | Arrêter les sons en cours et vider la file | — | Tous |
+| `/media sound board` | `sound_board` | Afficher un panneau de boutons (25 sons max) | `page` (integer), `salon` (channel) | Tous |
+| `/media joinsound set` | `joinsound_set` | Définir le son joué à votre arrivée en vocal | `nom`* (string), `membre` (user) | Tous |
+| `/media joinsound remove` | `joinsound_remove` | Retirer votre son d'arrivée | `membre` (user) | Tous |
+| `/media tts` | `tts` | Synthèse vocale : lire un texte en vocal (ou recevoir le mp3) | `texte`* (string), `langue` (choice), `voix` (choice), `fichier` (boolean), `salon` (channel) | Tous |
+| `/media playlist create` | `playlist_create` | Créer une playlist personnelle | `nom`* (string), `publique` (boolean) | Tous |
+| `/media playlist add` | `playlist_add` | Ajouter un titre (URL ou recherche) à une playlist | `nom`* (string), `element`* (string), `titre` (string) | Tous |
+| `/media playlist remove` | `playlist_remove` | Retirer un titre d'une playlist (par position) | `nom`* (string), `position`* (integer) | Tous |
+| `/media playlist delete` | `playlist_delete` | Supprimer une playlist | `nom`* (string), `membre` (user) | Tous |
+| `/media playlist list` | `playlist_list` | Lister les playlists (les vôtres ou celles d'un membre) | `membre` (user) | Tous |
+| `/media playlist show` | `playlist_show` | Afficher le contenu d'une playlist | `nom`* (string), `membre` (user) | Tous |
+| `/media playlist play` | `playlist_play` | Jouer une playlist via le module musique | `nom`* (string), `membre` (user), `melanger` (boolean), `salon` (channel) | Tous |
+| `/media youtube` | `youtube` | Rechercher des vidéos YouTube (yt-dlp) | `recherche`* (string) | Tous |
+| `/media spotify` | `spotify` | Infos d'un lien Spotify (titre, album, playlist…) | `lien`* (string) | Tous |
+| `/media imageinfo` | `imageinfo` | Dimensions, format et couleur moyenne d'une image | `url` (string), `fichier` (attachment) | Tous |
+| `/media gif search` | `gif_search` | Rechercher un GIF (Tenor ou Giphy) | `recherche`* (string), `aleatoire` (boolean) | Tous |
+| `/media avatar-frame` | `avatar_frame` | Avatar dans un cadre décoratif | `membre` (user), `style` (choice), `serveur` (boolean) | Tous |
+| `/media video info` | `video_info` | Infos d'une vidéo (durée, vues, auteur) via yt-dlp | `url`* (string) | Tous |
+| `/media convert audio` | `convert_audio` | Convertir un fichier audio/vidéo en mp3/ogg/wav… | `format`* (choice), `url` (string), `fichier` (attachment), `debit` (integer) | Tous |
+
+**Vues du panel** : Soundboard, Playlists
+
 
 ## 🎵 Musique <a id="music"></a>
 
